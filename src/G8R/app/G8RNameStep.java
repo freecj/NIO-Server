@@ -25,8 +25,8 @@ public class G8RNameStep extends PollState {
 	 * @param clntSock
 	 * @param logger
 	 */
-	public G8RNameStep(Socket clntSock, Logger logger) {
-		super(clntSock, logger);
+	public G8RNameStep( Logger logger) {
+		super(logger);
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class G8RNameStep extends PollState {
 
 				g8rResponse = new G8RResponse(statusOk, functionNameForFood, msString, beforeCookie);
 
-				context.setState(new G8RFoodStep(clntSock, logger));
+				context.setState(new G8RFoodStep( logger));
 				writerMsg();
 			} else if (functionNameForName.equals(g8rRequest.getFunction()) && g8rRequest.getParams().length != 2) {
 				// the param number does not match

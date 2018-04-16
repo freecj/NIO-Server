@@ -29,8 +29,8 @@ public class G8RPollStep extends PollState {
 	 * @param logger
 	 * @param n4mServer 
 	 */
-	public G8RPollStep(Socket clntSock, Logger logger, N4MServer n4mServer) {
-		super(clntSock, logger);
+	public G8RPollStep(Logger logger, N4MServer n4mServer) {
+		super(logger);
 		this.n4mServer = n4mServer;
 	}
 	/**
@@ -63,11 +63,11 @@ public class G8RPollStep extends PollState {
 					String msString = beforeCookie.getValue(strFirstName) + "'s Food mood>";
 					g8rResponse = new G8RResponse(statusOk, functionNameForFood, msString, beforeCookie);
 
-					context.setState(new G8RFoodStep(clntSock, logger));
+					context.setState(new G8RFoodStep( logger));
 				} else {
 					// does not have the name cookies, then go to the namestep
 					g8rResponse = new G8RResponse(statusOk, functionNameForName, "Name (First Last)>", beforeCookie);
-					context.setState(new G8RNameStep(clntSock, logger));
+					context.setState(new G8RNameStep( logger));
 
 				}
 				writerMsg();
@@ -81,7 +81,7 @@ public class G8RPollStep extends PollState {
 				}
 
 				g8rResponse = new G8RResponse(statusOk, functionNameForSendGuess, "Guess (0-9)?", beforeCookie);
-				context.setState(new G8RSendGuess(clntSock, logger));
+				context.setState(new G8RSendGuess( logger));
 				writerMsg();
 			} else {
 				// command function is wrong

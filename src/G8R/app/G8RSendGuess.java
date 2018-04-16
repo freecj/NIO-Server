@@ -25,8 +25,8 @@ public class G8RSendGuess extends PollState {
 	 * @param clientSocket
 	 * @param logger
 	 */
-	public G8RSendGuess(Socket clientSocket, Logger logger) {
-		super(clientSocket, logger);
+	public G8RSendGuess( Logger logger) {
+		super( logger);
 
 	}
 

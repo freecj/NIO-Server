@@ -33,8 +33,8 @@ public class Context {
 	/**
 	 * the command which accept and respond the client
 	 */
-	public void pull() {
-		if (curstate.read()) {
+	public void pull(String receivedStr) {
+		if (curstate.read(receivedStr)) {
 			// can decode from the client, then send respond message
 			curstate.generateMsg();
 		}

@@ -24,8 +24,8 @@ public class G8RFoodStep extends PollState {
 	 * @param clientSocket
 	 * @param logger
 	 */
-	public G8RFoodStep(Socket clientSocket, Logger logger) {
-		super(clientSocket, logger);
+	public G8RFoodStep( Logger logger) {
+		super( logger);
 	}
 
 	@Override

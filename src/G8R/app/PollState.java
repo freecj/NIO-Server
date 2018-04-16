@@ -7,9 +7,18 @@
 ************************************************/
 package G8R.app;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -50,7 +59,12 @@ public abstract class PollState {
 
 	protected static String functionNameForSendGuess = "SendGuess";
 	protected static String strNameGuess = "Guess";
-
+	protected ByteBuffer writeBuf;
+	protected ByteBuffer readBuf;
+	protected static final String ENC = "ASCII";
+	protected static String BufferDelimiter = "\r\n\r\n";
+	protected int BUFSIZE = 1;
+	private AsynchronousSocketChannel clntChan;
 	/**
 	 * set the new context withe the new state to the new context.
 	 * 
@@ -69,18 +83,19 @@ public abstract class PollState {
 	 *            client socket
 	 * @param logger
 	 */
-	public PollState(Socket clientSocket, Logger logger) {
-		this.clntSock = clientSocket;
+	public PollState( Logger logger) {
+		//this.clntSock = clientSocket;
 		this.logger = logger;
+		readBuf = ByteBuffer.allocateDirect(BUFSIZE);
 
 		try {
 
-			socketOut = new MessageOutput(clntSock.getOutputStream());
-			socketIn = new MessageInput(clntSock.getInputStream());
+			/*socketOut = new MessageOutput(clntSock.getOutputStream());
+			socketIn = new MessageInput(clntSock.getInputStream());*/
 			// Get the time limit from the System properties or take the default
 			timeLimit = Integer.parseInt(System.getProperty(TIMELIMITPROP, TIMELIMIT));
 
-		} catch (NullPointerException | IOException e) {
+		} catch (NullPointerException e) {
 			// socket close
 			close();
 
@@ -94,11 +109,12 @@ public abstract class PollState {
 	 * @throws NullPointerException
 	 * @return true if the type of message is G8RRequest. otherwise false.
 	 */
-	public boolean read() {
+	public boolean read(String receivedStr) {
 
 		G8RMessage temp;
 		try {
-			clntSock.setSoTimeout(timeLimit);
+			//clntSock.setSoTimeout(timeLimit);
+			socketIn = new MessageInput(new ByteArrayInputStream(receivedStr.getBytes(ENC)));
 			temp = G8RMessage.decode(socketIn);
 			if (temp instanceof G8RRequest) {
 				// the type of message from the socket is G8RRequest
@@ -189,6 +205,8 @@ public abstract class PollState {
 	public void writerMsg() {
 		try {
 			clntSock.setSoTimeout(timeLimit);
+			OutputStream out = new ByteArrayOutputStream();
+			socketOut = new MessageOutput(out);
 			g8rResponse.encode(socketOut);
 			logMsg();
 		} catch (SocketTimeoutException e) {
@@ -237,5 +255,124 @@ public abstract class PollState {
 	 * state change and send response message
 	 */
 	public abstract void generateMsg();
+	
+	/**
+	 * check string is the format or not
+	 * @param test String to be tested
+	 * @param delimiter 
+	 * @return true if match, otherwise false.
+	 */
+	public boolean isValidDlimiter(String test, String delimiter) {
+		String regex = delimiter;
+		return test.matches(regex);
+
+	}
+	/**
+	 * Called after each read completion
+	 * 
+	 * @param clntChan
+	 *            channel of new client
+	 * @param buf
+	 *            byte buffer used in read
+	 * @throws IOException
+	 *             if I/O problem
+	 */
+	public void handleRead(final AsynchronousSocketChannel clntChan, final Context context,  final String ret)
+			 {
+		readBuf.clear(); // Prepare buffer for input, ignoring existing state
+
+		clntChan.read(readBuf, clntChan, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
+			// read();
+			@Override
+			public void completed(Integer bytesRead, AsynchronousSocketChannel channel) {
+				// message is read from server
+				if (bytesRead == -1) {
+					
+						try {
+							clntChan.close();
+						} catch (IOException e) {
+						
+							e.printStackTrace();
+						}
+					
+				} else if (bytesRead > 0) {
+				String now = ret + (char) readBuf.get(0);
+
+				if (now.length() >= BufferDelimiter.length()) {
+					/* delete the delimiter */
+					if (isValidDlimiter(now.substring(now.length() - BufferDelimiter.length()), BufferDelimiter)) {
+						read(now);
+						
+						handleWrite(clntChan,context, ret);
+					}
+				} else {
+					handleRead(clntChan, context, ret);
+				}
+				}
+			}
+
+			@Override
+			public void failed(Throwable exc, AsynchronousSocketChannel channel) {
+				try {
+					clntChan.close();
+				} catch (IOException e) {
+					logger.log(Level.WARNING, "Close Failed", e);
+				}
+			}
+
+		});
+		
+	}
+
+	/**
+	 * Called after each write
+	 * 
+	 * @param clntChan
+	 *            channel of new client
+	 * @param buf
+	 *            byte buffer used in write
+	 * @throws IOException
+	 *             if I/O problem
+	 */
+	public  void handleWrite(final AsynchronousSocketChannel clntChan, final Context context,  final String ret) throws IOException {
+		if (buf.hasRemaining()) { // More to write
+			clntChan.write(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
+				public void completed(Integer bytesWritten, ByteBuffer buf) {
+					try {
+						handleWrite(clntChan, buf);
+					} catch (IOException e) {
+						logger.log(Level.WARNING, "Handle Write Failed", e);
+					}
+				}
+
+				public void failed(Throwable ex, ByteBuffer buf) {
+					try {
+						clntChan.close();
+					} catch (IOException e) {
+						logger.log(Level.WARNING, "Close Failed", e);
+					}
+				}
+			});
+		} else { // Back to reading
+			buf.clear();
+			clntChan.read(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
+				public void completed(Integer bytesRead, ByteBuffer buf) {
+					try {
+						handleRead(clntChan, buf, bytesRead);
+					} catch (IOException e) {
+						logger.log(Level.WARNING, "Handle Read Failed", e);
+					}
+				}
+
+				public void failed(Throwable ex, ByteBuffer v) {
+					try {
+						clntChan.close();
+					} catch (IOException e) {
+						logger.log(Level.WARNING, "Close Failed", e);
+					}
+				}
+			});
+		}
+	}
 
 }
