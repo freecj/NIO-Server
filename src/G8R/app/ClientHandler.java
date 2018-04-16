@@ -36,7 +36,7 @@ public class ClientHandler implements Runnable {
 	 */
 	public void handleEchoClient() {
 		Context context = new Context();
-		context.setState(new G8RPollStep( logger, n4mServer));
+	//	context.setState(new G8RPollStep( logger, n4mServer));
 		
 		while (true) {
 			if (context.isEndFlag()) {

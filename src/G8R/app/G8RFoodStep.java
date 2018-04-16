@@ -8,6 +8,7 @@
 package G8R.app;
 
 import java.net.Socket;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.util.logging.Logger;
 
 import G8R.serialization.CookieList;
@@ -21,11 +22,12 @@ import G8R.serialization.ValidationException;
 public class G8RFoodStep extends PollState {
 
 	/**
+	 * @param clntChan 
 	 * @param clientSocket
 	 * @param logger
 	 */
-	public G8RFoodStep( Logger logger) {
-		super( logger);
+	public G8RFoodStep(AsynchronousSocketChannel clntChan, Logger logger) {
+		super(clntChan, logger);
 	}
 
 	@Override

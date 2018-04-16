@@ -8,6 +8,7 @@
 package G8R.app;
 
 import java.net.Socket;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.util.logging.Logger;
 
 import G8R.serialization.CookieList;
@@ -21,12 +22,11 @@ public class G8RNameStep extends PollState {
 
 	/**
 	 * Constructor use PollState constructor
-	 * 
-	 * @param clntSock
+	 * @param clntChan 
 	 * @param logger
 	 */
-	public G8RNameStep( Logger logger) {
-		super(logger);
+	public G8RNameStep(AsynchronousSocketChannel clntChan, Logger logger) {
+		super(clntChan, logger);
 	}
 
 	/**
@@ -49,7 +49,7 @@ public class G8RNameStep extends PollState {
 
 				g8rResponse = new G8RResponse(statusOk, functionNameForFood, msString, beforeCookie);
 
-				context.setState(new G8RFoodStep( logger));
+				context.setState(new G8RFoodStep(clntChan, logger));
 				writerMsg();
 			} else if (functionNameForName.equals(g8rRequest.getFunction()) && g8rRequest.getParams().length != 2) {
 				// the param number does not match

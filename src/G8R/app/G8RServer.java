@@ -72,11 +72,9 @@ public class G8RServer {
 				@Override
 				public void completed(AsynchronousSocketChannel clntChan, Void attachment) {
 					listener.accept(null, this);
-					try {
-						handleAccept(clntChan);
-					} catch (IOException e) {
-						failed(e, null);
-					}
+					Context context = new Context();
+					context.setState(new G8RPollStep(clntChan,logger, n4mServer));
+					context.getState().handleRead(clntChan, context, "");
 				}
 
 				@Override
@@ -112,18 +110,14 @@ public class G8RServer {
 	 *            channel of new client
 	 * @throws IOException
 	 *             if I/O problem
-	 */
-	public static void handleAccept(final AsynchronousSocketChannel clntChan) throws IOException {
+	 *//*
+	public void handleAccept(final AsynchronousSocketChannel clntChan) throws IOException {
 		ByteBuffer buf = ByteBuffer.allocateDirect(BUFSIZE);
 		clntChan.read(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
 			public void completed(Integer bytesRead, ByteBuffer buf) {
-				try {
-					Context context = new Context();
-					context.setState(new G8RPollStep(logger, n4mServer));
-					handleRead(clntChan, buf, bytesRead, context);
-				} catch (IOException e) {
-					logger.log(Level.WARNING, "Handle Read Failed", e);
-				}
+				Context context = new Context();
+				context.setState(new G8RPollStep(clntChan,logger, n4mServer));
+				context.getState().handleRead(clntChan, context, "");
 			}
 
 			public void failed(Throwable ex, ByteBuffer v) {
@@ -134,124 +128,8 @@ public class G8RServer {
 				}
 			}
 		});
-	}
+	}*/
 
-	/**
-	 * Called after each read completion
-	 * 
-	 * @param clntChan
-	 *            channel of new client
-	 * @param buf
-	 *            byte buffer used in read
-	 * @throws IOException
-	 *             if I/O problem
-	 */
-	public static void handleRead(final AsynchronousSocketChannel clntChan,  Context context,  final String ret)
-			throws IOException {
-		context.getState().readBuf.clear(); // Prepare buffer for input, ignoring existing state
-
-		clntChan.read(readBuf, clntChan, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
-			// read();
-			@Override
-			public void completed(Integer bytesWritten, AsynchronousSocketChannel channel) {
-				// message is read from server
-				if ()
-				String now = ret + (char) readBuf.get(0);
-
-				if (now.length() >= BufferDelimiter.length()) {
-					/* delete the delimiter */
-					if (isValidDlimiter(now.substring(now.length() - BufferDelimiter.length()), BufferDelimiter)) {
-						read(now);
-						int newIndex = index + 1;
-						startWrite(sockChannel, newIndex);
-					}
-				} else {
-					startRead(sockChannel, index, ret);
-				}
-			}
-
-			@Override
-			public void failed(Throwable exc, AsynchronousSocketChannel channel) {
-				try {
-					clntChan.close();
-				} catch (IOException e) {
-					logger.log(Level.WARNING, "Close Failed", e);
-				}
-			}
-
-		});
-		else if (bytesRead > 0) {
-			buf.flip(); // prepare to write
-			clntChan.write(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
-				public void completed(Integer bytesWritten, ByteBuffer buf) {
-					try {
-						handleWrite(clntChan, buf);
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Handle Write Failed", e);
-					}
-				}
-
-				public void failed(Throwable ex, ByteBuffer buf) {
-					try {
-						clntChan.close();
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Close Failed", e);
-					}
-				}
-			});
-		}
-	}
-
-	/**
-	 * Called after each write
-	 * 
-	 * @param clntChan
-	 *            channel of new client
-	 * @param buf
-	 *            byte buffer used in write
-	 * @throws IOException
-	 *             if I/O problem
-	 */
-	public static void handleWrite(final AsynchronousSocketChannel clntChan, ByteBuffer buf) throws IOException {
-		if (buf.hasRemaining()) { // More to write
-			clntChan.write(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
-				public void completed(Integer bytesWritten, ByteBuffer buf) {
-					try {
-						handleWrite(clntChan, buf);
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Handle Write Failed", e);
-					}
-				}
-
-				public void failed(Throwable ex, ByteBuffer buf) {
-					try {
-						clntChan.close();
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Close Failed", e);
-					}
-				}
-			});
-		} else { // Back to reading
-			buf.clear();
-			clntChan.read(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
-				public void completed(Integer bytesRead, ByteBuffer buf) {
-					try {
-						handleRead(clntChan, buf, bytesRead);
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Handle Read Failed", e);
-					}
-				}
-
-				public void failed(Throwable ex, ByteBuffer v) {
-					try {
-						clntChan.close();
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Close Failed", e);
-					}
-				}
-			});
-		}
-	}
 
 	/**
 	 * test the string is numeric

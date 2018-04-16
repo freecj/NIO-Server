@@ -8,6 +8,7 @@
 package G8R.app;
 
 import java.net.Socket;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,12 +26,12 @@ public class G8RPollStep extends PollState {
 	private N4MServer n4mServer;
 	private static final int SHORTMASK = 0xffff;
 	/**
-	 * @param clntSock
+	 * @param clntChan
 	 * @param logger
 	 * @param n4mServer 
 	 */
-	public G8RPollStep(Logger logger, N4MServer n4mServer) {
-		super(logger);
+	public G8RPollStep(AsynchronousSocketChannel clntChan,Logger logger, N4MServer n4mServer) {
+		super(clntChan, logger);
 		this.n4mServer = n4mServer;
 	}
 	/**
@@ -63,11 +64,11 @@ public class G8RPollStep extends PollState {
 					String msString = beforeCookie.getValue(strFirstName) + "'s Food mood>";
 					g8rResponse = new G8RResponse(statusOk, functionNameForFood, msString, beforeCookie);
 
-					context.setState(new G8RFoodStep( logger));
+					context.setState(new G8RFoodStep(clntChan, logger));
 				} else {
 					// does not have the name cookies, then go to the namestep
 					g8rResponse = new G8RResponse(statusOk, functionNameForName, "Name (First Last)>", beforeCookie);
-					context.setState(new G8RNameStep( logger));
+					context.setState(new G8RNameStep(clntChan, logger));
 
 				}
 				writerMsg();
@@ -81,7 +82,7 @@ public class G8RPollStep extends PollState {
 				}
 
 				g8rResponse = new G8RResponse(statusOk, functionNameForSendGuess, "Guess (0-9)?", beforeCookie);
-				context.setState(new G8RSendGuess( logger));
+				context.setState(new G8RSendGuess(clntChan, logger));
 				writerMsg();
 			} else {
 				// command function is wrong

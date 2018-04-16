@@ -64,7 +64,7 @@ public abstract class PollState {
 	protected static final String ENC = "ASCII";
 	protected static String BufferDelimiter = "\r\n\r\n";
 	protected int BUFSIZE = 1;
-	private AsynchronousSocketChannel clntChan;
+	protected AsynchronousSocketChannel clntChan;
 	/**
 	 * set the new context withe the new state to the new context.
 	 * 
@@ -78,14 +78,16 @@ public abstract class PollState {
 	/**
 	 * Constructor which get the clientSocket and logger, create the MessageOutput
 	 * and MessageInput for decoding and encoding.
+	 * @param clntChan 
 	 * 
 	 * @param clientSocket
 	 *            client socket
 	 * @param logger
 	 */
-	public PollState( Logger logger) {
+	public PollState(AsynchronousSocketChannel clntChan, Logger logger) {
 		//this.clntSock = clientSocket;
 		this.logger = logger;
+		this.clntChan = clntChan;
 		readBuf = ByteBuffer.allocateDirect(BUFSIZE);
 
 		try {
@@ -132,19 +134,11 @@ public abstract class PollState {
 				// connection.
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Bad version: " + e1.getToken(),
 						beforeCookie);
-				g8rResponse.encode(socketOut);
+				writerMsg();
 				close();
 				return false;
 			} catch (ValidationException e) {
 				close();
-				return false;
-			} catch (SocketTimeoutException e) {
-				System.err.println("G8RSever read timeout. " + e.getMessage());
-				close();
-				return false;
-			} catch (IOException e) {
-				close();
-				System.err.println("G8RSever read IOException. " + e1.getMessage());
 				return false;
 			}
 
@@ -204,10 +198,11 @@ public abstract class PollState {
 	 */
 	public void writerMsg() {
 		try {
-			clntSock.setSoTimeout(timeLimit);
+			//clntSock.setSoTimeout(timeLimit);
 			OutputStream out = new ByteArrayOutputStream();
 			socketOut = new MessageOutput(out);
 			g8rResponse.encode(socketOut);
+			writeBuf = ByteBuffer.wrap(socketOut.toString().getBytes(ENC));
 			logMsg();
 		} catch (SocketTimeoutException e) {
 			close();
@@ -223,9 +218,10 @@ public abstract class PollState {
 
 	/**
 	 * log info of message information
+	 * @throws IOException 
 	 */
-	public void logMsg() {
-		logger.info("<" + clntSock.getRemoteSocketAddress() + ">:" + "<" + clntSock.getPort() + ">-" + "<"
+	public void logMsg() throws IOException {
+		logger.info("<" + clntChan.getRemoteAddress() + ">:" + "<"  + ">-" + "<"
 				+ Thread.currentThread().getId() + "> [Received:<" + g8rRequest.toString() + ">|Sent: <"
 				+ g8rResponse.toString() + ">]" + System.getProperty("line.separator"));
 
@@ -267,6 +263,7 @@ public abstract class PollState {
 		return test.matches(regex);
 
 	}
+	
 	/**
 	 * Called after each read completion
 	 * 
@@ -302,7 +299,7 @@ public abstract class PollState {
 					/* delete the delimiter */
 					if (isValidDlimiter(now.substring(now.length() - BufferDelimiter.length()), BufferDelimiter)) {
 						read(now);
-						
+						context.getState().generateMsg();
 						handleWrite(clntChan,context, ret);
 					}
 				} else {
@@ -329,50 +326,31 @@ public abstract class PollState {
 	 * 
 	 * @param clntChan
 	 *            channel of new client
+	 * @param context 
+	 * @param ret 
 	 * @param buf
 	 *            byte buffer used in write
 	 * @throws IOException
 	 *             if I/O problem
 	 */
-	public  void handleWrite(final AsynchronousSocketChannel clntChan, final Context context,  final String ret) throws IOException {
-		if (buf.hasRemaining()) { // More to write
-			clntChan.write(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
-				public void completed(Integer bytesWritten, ByteBuffer buf) {
-					try {
-						handleWrite(clntChan, buf);
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Handle Write Failed", e);
-					}
-				}
+	public  void handleWrite(final AsynchronousSocketChannel clntChan, final Context context,  final String ret)  {
+		
+		clntChan.write(writeBuf, clntChan, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
+			@Override
+			public void completed(Integer result, AsynchronousSocketChannel channel) {
+				handleRead(clntChan, context, "");
+			}
 
-				public void failed(Throwable ex, ByteBuffer buf) {
-					try {
-						clntChan.close();
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Close Failed", e);
-					}
+			@Override
+			public void failed(Throwable exc, AsynchronousSocketChannel channel) {
+				try {
+					clntChan.close();
+				} catch (IOException e) {
+					logger.log(Level.WARNING, "Close Failed", e);
 				}
-			});
-		} else { // Back to reading
-			buf.clear();
-			clntChan.read(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
-				public void completed(Integer bytesRead, ByteBuffer buf) {
-					try {
-						handleRead(clntChan, buf, bytesRead);
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Handle Read Failed", e);
-					}
-				}
-
-				public void failed(Throwable ex, ByteBuffer v) {
-					try {
-						clntChan.close();
-					} catch (IOException e) {
-						logger.log(Level.WARNING, "Close Failed", e);
-					}
-				}
-			});
-		}
+			}
+		});
+		
 	}
 
 }

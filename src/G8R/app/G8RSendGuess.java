@@ -8,6 +8,7 @@
 package G8R.app;
 
 import java.net.Socket;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.util.logging.Logger;
 
 import G8R.serialization.CookieList;
@@ -25,8 +26,8 @@ public class G8RSendGuess extends PollState {
 	 * @param clientSocket
 	 * @param logger
 	 */
-	public G8RSendGuess( Logger logger) {
-		super( logger);
+	public G8RSendGuess(AsynchronousSocketChannel clntChan, Logger logger) {
+		super(clntChan, logger);
 
 	}
 
