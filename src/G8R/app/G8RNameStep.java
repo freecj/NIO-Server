@@ -36,10 +36,12 @@ public class G8RNameStep extends PollState {
 	@Override
 	public void generateMsg() {
 		// get the cookielist from the request message
+		
 		CookieList beforeCookie = g8rRequest.getCookieList();
-
+		
 		try {
 			if (functionNameForName.equals(g8rRequest.getFunction()) && g8rRequest.getParams().length == 2) {
+				System.out.println("a");
 				// NameStep command fits
 				String[] values = g8rRequest.getParams();
 				// add name cookies
@@ -61,6 +63,7 @@ public class G8RNameStep extends PollState {
 			} else {
 				// error function name
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected message", beforeCookie);
+				context.setEndFlag();
 				//generateErrorMsg("Unexpected message");
 			}
 		} catch (ValidationException e) {

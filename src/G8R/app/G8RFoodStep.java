@@ -84,6 +84,7 @@ public class G8RFoodStep extends PollState {
 			} else {
 				// error function name
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected message", beforeCookie);
+				context.setEndFlag();
 				//context.setState(new G8REndStep(clntChan, logger, "Unexpected message"));
 				//generateErrorMsg("Unexpected message");
 

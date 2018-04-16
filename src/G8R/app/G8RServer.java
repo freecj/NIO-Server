@@ -30,9 +30,7 @@ import N4M.app.N4MServer;
  */
 public class G8RServer {
 	private static final int BUFSIZE = 0;
-	private ExecutorService ThreadPool;
 	private static Logger logger = Logger.getLogger(G8RServer.class.getName());
-	private ServerSocket serverSocket;
 	private FileHandler fileTxt;
 	private SimpleFormatter formatterTxt;
 	private N4MServer n4mServer;

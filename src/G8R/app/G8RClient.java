@@ -165,6 +165,7 @@ public class G8RClient {
 
 			@Override
 			public void failed(Throwable exc, AsynchronousSocketChannel channel) {
+				close();
 				System.out.println("fail to read message from server");
 			}
 
@@ -338,8 +339,11 @@ public class G8RClient {
 	public void close() {
 		try {
 			writeCookieToFile();
-			if (clntChan != null)
+			if (clntChan != null && clntChan.isOpen()) {
+				clntChan.shutdownInput();
+				clntChan.shutdownOutput();
 				clntChan.close();
+			}
 		} catch (IOException e) {
 			System.err.println("clntChan closed failed:");
 			System.exit(1);

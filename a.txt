@@ -1,1 +1,6 @@
+FName=Cao
+LName=Jina
+Num=2
+Repeat=4
+Score=2
 

@@ -1,0 +1,18 @@
+Apr 16, 2018 5:54:48 PM G8R.app.PollState logMsg
+INFO: </127.0.0.1:54221>:<>-<12> [Received:<g8rrequest: Poll Cookies=[FName=Cao,LName=Jina,Num=2,Repeat=3,Score=2]>|Sent: <response: OK FoodStep Cao's Food mood> Cookies=[FName=Cao,LName=Jina,Num=2,Repeat=3,Score=2]>]
+
+Apr 16, 2018 5:54:58 PM G8R.app.PollState logMsg
+INFO: </127.0.0.1:54222>:<>-<12> [Received:<g8rrequest: Poll Cookies=[FName=Cao,LName=Jina,Num=2,Repeat=3,Score=2]>|Sent: <response: OK FoodStep Cao's Food mood> Cookies=[FName=Cao,LName=Jina,Num=2,Repeat=3,Score=2]>]
+
+Apr 16, 2018 5:55:08 PM G8R.app.PollState logMsg
+INFO: </127.0.0.1:54221>:<>-<12> [Received:<g8rrequest: FoodStep  ItalianCookies=[FName=Cao,LName=Jina,Num=2,Repeat=3,Score=2]>|Sent: <response: OK NULL 25%+4% off at Pastastic Cookies=[FName=Cao,LName=Jina,Num=2,Repeat=4,Score=2]>]
+
+Apr 16, 2018 5:55:08 PM G8R.app.PollState logTerminateMsg
+INFO: </127.0.0.1:54221>:<>-<12> ***client terminated
+
+Apr 16, 2018 5:55:17 PM G8R.app.PollState logMsg
+INFO: </127.0.0.1:54222>:<>-<12> [Received:<g8rrequest: FoodStep  ItalianCookies=[FName=Cao,LName=Jina,Num=2,Repeat=3,Score=2]>|Sent: <response: OK NULL 25%+4% off at Pastastic Cookies=[FName=Cao,LName=Jina,Num=2,Repeat=4,Score=2]>]
+
+Apr 16, 2018 5:55:17 PM G8R.app.PollState logTerminateMsg
+INFO: </127.0.0.1:54222>:<>-<12> ***client terminated
+

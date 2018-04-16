@@ -71,6 +71,7 @@ public class G8RPollStep extends PollState {
 					context.setState(new G8RNameStep(clntChan, logger));
 
 				}
+				
 				//writerMsg();
 			} else if (strNameGuess.equals(g8rRequest.getFunction())) {
 				setMapInfo(strNameGuess);
@@ -86,7 +87,9 @@ public class G8RPollStep extends PollState {
 				//writerMsg();
 			} else {
 				// command function is wrong
+				
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected function", beforeCookie);
+				context.setEndFlag();
 				//generateErrorMsg("Unexpected function");
 			}
 

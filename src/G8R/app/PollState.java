@@ -119,14 +119,16 @@ public abstract class PollState {
 	public boolean read(String receivedStr) {
 
 		G8RMessage temp;
-		try {	
+		try {
 			// clntSock.setSoTimeout(timeLimit);
 			socketIn = new MessageInput(new ByteArrayInputStream(receivedStr.getBytes(ENC)));
 			temp = G8RMessage.decode(socketIn);
-		
+
 			if (temp instanceof G8RRequest) {
 				// the type of message from the socket is G8RRequest
+				// System.out.println("request");
 				g8rRequest = (G8RRequest) temp;
+				System.out.println(g8rRequest);
 				return true;
 			} else {
 				// otherwise throw exception
@@ -142,8 +144,8 @@ public abstract class PollState {
 						beforeCookie);
 				context.setEndFlag();
 				handleWrite(clntChan, context);
-				//writerMsg();
-				//close();
+				// writerMsg();
+				// close();
 				return false;
 			} catch (ValidationException e) {
 				close();
@@ -172,11 +174,17 @@ public abstract class PollState {
 		context.setEndFlag();
 		try {
 			logTerminateMsg();
-			if (clntChan != null )
+
+			if (clntChan != null && clntChan.isOpen()) {
+				clntChan.shutdownInput();
+				clntChan.shutdownOutput();
 				clntChan.close();
 
+			}
+
 		} catch (IOException e) {
-			System.err.println("client socket closed failed:");
+			logger.log(Level.WARNING, "Close Failed", e);
+			System.err.println("server AIO channle closed failed:");
 		}
 	}
 
@@ -238,10 +246,12 @@ public abstract class PollState {
 
 	/**
 	 * log info of client terminated
+	 * 
+	 * @throws IOException
 	 */
-	public void logTerminateMsg() {
-		logger.info("<" + clntSock.getRemoteSocketAddress() + ">:" + "<" + clntSock.getPort() + ">-" + "<"
-				+ Thread.currentThread().getId() + "> ***client terminated" + System.getProperty("line.separator"));
+	public void logTerminateMsg() throws IOException {
+		logger.info("<" + clntChan.getRemoteAddress() + ">:" + "<" + ">-" + "<" + Thread.currentThread().getId()
+				+ "> ***client terminated" + System.getProperty("line.separator"));
 
 	}
 
@@ -274,23 +284,15 @@ public abstract class PollState {
 		return test.matches(regex);
 
 	}
-	public  String byteBuffer2String(ByteBuffer buf, Charset charset) {
-        byte[] bytes;
-        if (buf.hasArray()) {
-            bytes = buf.array();
-        } else {
-            buf.rewind();
-            bytes = new byte[buf.remaining()];
-        }
-        return new String(bytes, charset);
-}
+
 	/**
 	 * Called after each read completion
 	 * 
 	 * @param clntChan
 	 *            channel of new client
-	 * @param buf
-	 *            byte buffer used in read
+	 * @param context
+	 * @param ret
+	 * 
 	 * @throws IOException
 	 *             if I/O problem
 	 */
@@ -304,23 +306,18 @@ public abstract class PollState {
 				// message is read from server
 				if (bytesRead == -1) {
 
-					try {
-						clntChan.close();
-					} catch (IOException e) {
-
-						e.printStackTrace();
-					}
+					close();
 
 				} else if (bytesRead > 0) {
-					String now = ret +(char)readBuf.get(0) ;
-					//System.out.println( byteBuffer2String(readBuf, Charset.forName(ENC)));
-					
+					String now = ret + (char) readBuf.get(0);
+					// System.out.println( byteBuffer2String(readBuf, Charset.forName(ENC)));
+
 					if (now.length() >= BufferDelimiter.length()) {
 						/* delete the delimiter */
-					
+
 						if (isValidDlimiter(now.substring(now.length() - BufferDelimiter.length()), BufferDelimiter)) {
 							read(now);
-							context.getState().generateMsg();
+							generateMsg();
 							handleWrite(clntChan, context);
 						} else {
 							handleRead(clntChan, context, now);
@@ -333,11 +330,7 @@ public abstract class PollState {
 
 			@Override
 			public void failed(Throwable exc, AsynchronousSocketChannel channel) {
-				try {
-					clntChan.close();
-				} catch (IOException e) {
-					logger.log(Level.WARNING, "Close Failed", e);
-				}
+				close();
 			}
 
 		});
@@ -364,9 +357,9 @@ public abstract class PollState {
 				if (context.isEndFlag()) {
 					close();
 				} else {
-					handleRead(clntChan, context, "");
+					context.getState().handleRead(clntChan, context, "");
 				}
-				
+
 			}
 
 			@Override
