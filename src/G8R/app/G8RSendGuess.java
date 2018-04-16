@@ -58,28 +58,31 @@ public class G8RSendGuess extends PollState {
 							beforeCookie.add(strScore, String.valueOf(score));
 							g8rResponse = new G8RResponse(statusOk, functionNameForNull,
 									"Correct! Score=" + String.valueOf(score), beforeCookie);
-							writerMsg();
-							close();
+							context.setEndFlag();
+							//writerMsg();
+							//close();
 						} else if (numRequest < setValue) {
 							// small case
 							beforeCookie.add(strScore, String.valueOf(score));
 							g8rResponse = new G8RResponse(statusError, functionNameForSendGuess,
 									"Guess too low. Guess (0-9)?>", beforeCookie);
-							writerMsg();
+							//writerMsg();
 						} else if (numRequest > setValue) {
 							// large case
 							beforeCookie.add(strScore, String.valueOf(score));
 							g8rResponse = new G8RResponse(statusError, functionNameForSendGuess,
 									"Guess too high. Guess (0-9)?>", beforeCookie);
-							writerMsg();
+							//writerMsg();
 						}
 					} else {
 						// cookie value of Num is not right
-						generateErrorMsg("malfunction, Num is beyond the range 0-9");
+						g8rResponse = new G8RResponse(statusError, functionNameForNull, "malfunction, Num is beyond the range 0-9", beforeCookie);
+						//generateErrorMsg("malfunction, Num is beyond the range 0-9");
 					}
 				} else {
 					// no cookiename=Num
-					generateErrorMsg("malfunction");
+					g8rResponse = new G8RResponse(statusError, functionNameForNull, "malfunction", beforeCookie);
+					//generateErrorMsg("malfunction");
 
 				}
 
@@ -88,10 +91,11 @@ public class G8RSendGuess extends PollState {
 				String mString = "Poorly formed Guess. Guess (0-9)?>";
 				g8rResponse = new G8RResponse(statusError, functionNameForSendGuess, mString, beforeCookie);
 
-				writerMsg();
+				//writerMsg();
 			} else {
 				// error function name
-				generateErrorMsg("Unexpected message");
+				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected message", beforeCookie);
+				//generateErrorMsg("Unexpected message");
 
 			}
 

@@ -66,8 +66,9 @@ public class G8RFoodStep extends PollState {
 				// update cookielist repeat value
 				beforeCookie.add(repeatStr, String.valueOf(repeateValue));
 				g8rResponse = new G8RResponse(statusOk, functionNameForNull, msString, beforeCookie);
-				writerMsg();
-				close();
+				context.setEndFlag();
+				//writerMsg();
+				//close();
 
 			} else if (functionNameForFood.equals(g8rRequest.getFunction()) && g8rRequest.getParams().length != 1) {
 				// resend the foodstep command to let the use input the right request
@@ -79,10 +80,12 @@ public class G8RFoodStep extends PollState {
 				String mString = "Poorly formed food mood. " + firstName + "'s Food mood>";
 				g8rResponse = new G8RResponse(statusError, functionNameForFood, mString, beforeCookie);
 
-				writerMsg();
+				//writerMsg();
 			} else {
 				// error function name
-				generateErrorMsg("Unexpected message");
+				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected message", beforeCookie);
+				//context.setState(new G8REndStep(clntChan, logger, "Unexpected message"));
+				//generateErrorMsg("Unexpected message");
 
 			}
 

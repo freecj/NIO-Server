@@ -92,8 +92,7 @@ public class G8RClient {
 			// Create channel and set to nonblocking
 			clntChan = AsynchronousSocketChannel.open();
 
-			// Initiate connection to server and repeatedly poll until complete
-			clntChan.connect(new InetSocketAddress(ip, port));
+		
 			// try to connect to the server side
 			clntChan.connect(new InetSocketAddress(ip, port), clntChan,
 					new CompletionHandler<Void, AsynchronousSocketChannel>() {
@@ -111,7 +110,7 @@ public class G8RClient {
 								System.out.println("fail to connect to server");
 								clntChan.close();
 							} catch (IOException e) {
-
+								e.printStackTrace();
 							} finally {
 								System.out.println("fail to connect to server");
 							}
@@ -156,9 +155,11 @@ public class G8RClient {
 						read(now);
 						int newIndex = index + 1;
 						startWrite(sockChannel, newIndex);
+					} else {
+						startRead(sockChannel, index, now);
 					}
 				} else {
-					startRead(sockChannel, index, ret);
+					startRead(sockChannel, index, now);
 				}
 			}
 
@@ -177,7 +178,7 @@ public class G8RClient {
 		try {
 			if ((userInput = stdIn.readLine()) != null) {
 				String test = foreStr + userInput;
-
+				
 				if (index == firstTime) {
 					// input function
 					if (!isValidParam(test)) {
@@ -208,10 +209,11 @@ public class G8RClient {
 					// client send request with new param
 					sendRequest(param);
 				}
-
+				
 				sockChannel.write(writeBuf, sockChannel, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
 					@Override
 					public void completed(Integer result, AsynchronousSocketChannel channel) {
+						
 						startRead(sockChannel, index, "");
 					}
 
@@ -368,7 +370,8 @@ public class G8RClient {
 			OutputStream out = new ByteArrayOutputStream();
 			socketOut = new MessageOutput(out);
 			g8rRequest.encode(socketOut);
-			writeBuf = ByteBuffer.wrap(socketOut.toString().getBytes(ENC));
+			
+			writeBuf = ByteBuffer.wrap(((ByteArrayOutputStream) out).toByteArray());
 
 		} catch (ValidationException e) {
 
@@ -399,8 +402,8 @@ public class G8RClient {
 			OutputStream out = new ByteArrayOutputStream();
 			socketOut = new MessageOutput(out);
 			g8rRequest.encode(socketOut);
-			writeBuf = ByteBuffer.wrap(socketOut.toString().getBytes(ENC));
-
+			writeBuf = ByteBuffer.wrap(((ByteArrayOutputStream) out).toByteArray());
+			
 		} catch (ValidationException e) {
 			System.err.println("socket send Request failed: ValidationException");
 		} catch (IOException e) {

@@ -18,6 +18,7 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -65,6 +66,7 @@ public abstract class PollState {
 	protected static String BufferDelimiter = "\r\n\r\n";
 	protected int BUFSIZE = 1;
 	protected AsynchronousSocketChannel clntChan;
+
 	/**
 	 * set the new context withe the new state to the new context.
 	 * 
@@ -78,22 +80,25 @@ public abstract class PollState {
 	/**
 	 * Constructor which get the clientSocket and logger, create the MessageOutput
 	 * and MessageInput for decoding and encoding.
-	 * @param clntChan 
+	 * 
+	 * @param clntChan
 	 * 
 	 * @param clientSocket
 	 *            client socket
 	 * @param logger
 	 */
 	public PollState(AsynchronousSocketChannel clntChan, Logger logger) {
-		//this.clntSock = clientSocket;
+		// this.clntSock = clientSocket;
 		this.logger = logger;
 		this.clntChan = clntChan;
 		readBuf = ByteBuffer.allocateDirect(BUFSIZE);
 
 		try {
 
-			/*socketOut = new MessageOutput(clntSock.getOutputStream());
-			socketIn = new MessageInput(clntSock.getInputStream());*/
+			/*
+			 * socketOut = new MessageOutput(clntSock.getOutputStream()); socketIn = new
+			 * MessageInput(clntSock.getInputStream());
+			 */
 			// Get the time limit from the System properties or take the default
 			timeLimit = Integer.parseInt(System.getProperty(TIMELIMITPROP, TIMELIMIT));
 
@@ -114,10 +119,11 @@ public abstract class PollState {
 	public boolean read(String receivedStr) {
 
 		G8RMessage temp;
-		try {
-			//clntSock.setSoTimeout(timeLimit);
+		try {	
+			// clntSock.setSoTimeout(timeLimit);
 			socketIn = new MessageInput(new ByteArrayInputStream(receivedStr.getBytes(ENC)));
 			temp = G8RMessage.decode(socketIn);
+		
 			if (temp instanceof G8RRequest) {
 				// the type of message from the socket is G8RRequest
 				g8rRequest = (G8RRequest) temp;
@@ -134,8 +140,10 @@ public abstract class PollState {
 				// connection.
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Bad version: " + e1.getToken(),
 						beforeCookie);
-				writerMsg();
-				close();
+				context.setEndFlag();
+				handleWrite(clntChan, context);
+				//writerMsg();
+				//close();
 				return false;
 			} catch (ValidationException e) {
 				close();
@@ -164,8 +172,8 @@ public abstract class PollState {
 		context.setEndFlag();
 		try {
 			logTerminateMsg();
-			if (clntSock != null && !clntSock.isClosed())
-				clntSock.close();
+			if (clntChan != null )
+				clntChan.close();
 
 		} catch (IOException e) {
 			System.err.println("client socket closed failed:");
@@ -198,11 +206,11 @@ public abstract class PollState {
 	 */
 	public void writerMsg() {
 		try {
-			//clntSock.setSoTimeout(timeLimit);
+			// clntSock.setSoTimeout(timeLimit);
 			OutputStream out = new ByteArrayOutputStream();
 			socketOut = new MessageOutput(out);
 			g8rResponse.encode(socketOut);
-			writeBuf = ByteBuffer.wrap(socketOut.toString().getBytes(ENC));
+			writeBuf = ByteBuffer.wrap(((ByteArrayOutputStream) out).toByteArray());
 			logMsg();
 		} catch (SocketTimeoutException e) {
 			close();
@@ -218,12 +226,13 @@ public abstract class PollState {
 
 	/**
 	 * log info of message information
-	 * @throws IOException 
+	 * 
+	 * @throws IOException
 	 */
 	public void logMsg() throws IOException {
-		logger.info("<" + clntChan.getRemoteAddress() + ">:" + "<"  + ">-" + "<"
-				+ Thread.currentThread().getId() + "> [Received:<" + g8rRequest.toString() + ">|Sent: <"
-				+ g8rResponse.toString() + ">]" + System.getProperty("line.separator"));
+		logger.info("<" + clntChan.getRemoteAddress() + ">:" + "<" + ">-" + "<" + Thread.currentThread().getId()
+				+ "> [Received:<" + g8rRequest.toString() + ">|Sent: <" + g8rResponse.toString() + ">]"
+				+ System.getProperty("line.separator"));
 
 	}
 
@@ -251,11 +260,13 @@ public abstract class PollState {
 	 * state change and send response message
 	 */
 	public abstract void generateMsg();
-	
+
 	/**
 	 * check string is the format or not
-	 * @param test String to be tested
-	 * @param delimiter 
+	 * 
+	 * @param test
+	 *            String to be tested
+	 * @param delimiter
 	 * @return true if match, otherwise false.
 	 */
 	public boolean isValidDlimiter(String test, String delimiter) {
@@ -263,7 +274,16 @@ public abstract class PollState {
 		return test.matches(regex);
 
 	}
-	
+	public  String byteBuffer2String(ByteBuffer buf, Charset charset) {
+        byte[] bytes;
+        if (buf.hasArray()) {
+            bytes = buf.array();
+        } else {
+            buf.rewind();
+            bytes = new byte[buf.remaining()];
+        }
+        return new String(bytes, charset);
+}
 	/**
 	 * Called after each read completion
 	 * 
@@ -274,8 +294,7 @@ public abstract class PollState {
 	 * @throws IOException
 	 *             if I/O problem
 	 */
-	public void handleRead(final AsynchronousSocketChannel clntChan, final Context context,  final String ret)
-			 {
+	public void handleRead(final AsynchronousSocketChannel clntChan, final Context context, final String ret) {
 		readBuf.clear(); // Prepare buffer for input, ignoring existing state
 
 		clntChan.read(readBuf, clntChan, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
@@ -284,27 +303,31 @@ public abstract class PollState {
 			public void completed(Integer bytesRead, AsynchronousSocketChannel channel) {
 				// message is read from server
 				if (bytesRead == -1) {
-					
-						try {
-							clntChan.close();
-						} catch (IOException e) {
-						
-							e.printStackTrace();
-						}
-					
-				} else if (bytesRead > 0) {
-				String now = ret + (char) readBuf.get(0);
 
-				if (now.length() >= BufferDelimiter.length()) {
-					/* delete the delimiter */
-					if (isValidDlimiter(now.substring(now.length() - BufferDelimiter.length()), BufferDelimiter)) {
-						read(now);
-						context.getState().generateMsg();
-						handleWrite(clntChan,context, ret);
+					try {
+						clntChan.close();
+					} catch (IOException e) {
+
+						e.printStackTrace();
 					}
-				} else {
-					handleRead(clntChan, context, ret);
-				}
+
+				} else if (bytesRead > 0) {
+					String now = ret +(char)readBuf.get(0) ;
+					//System.out.println( byteBuffer2String(readBuf, Charset.forName(ENC)));
+					
+					if (now.length() >= BufferDelimiter.length()) {
+						/* delete the delimiter */
+					
+						if (isValidDlimiter(now.substring(now.length() - BufferDelimiter.length()), BufferDelimiter)) {
+							read(now);
+							context.getState().generateMsg();
+							handleWrite(clntChan, context);
+						} else {
+							handleRead(clntChan, context, now);
+						}
+					} else {
+						handleRead(clntChan, context, now);
+					}
 				}
 			}
 
@@ -318,7 +341,7 @@ public abstract class PollState {
 			}
 
 		});
-		
+
 	}
 
 	/**
@@ -326,31 +349,32 @@ public abstract class PollState {
 	 * 
 	 * @param clntChan
 	 *            channel of new client
-	 * @param context 
-	 * @param ret 
+	 * @param context
+	 * @param ret
 	 * @param buf
 	 *            byte buffer used in write
 	 * @throws IOException
 	 *             if I/O problem
 	 */
-	public  void handleWrite(final AsynchronousSocketChannel clntChan, final Context context,  final String ret)  {
-		
+	public void handleWrite(final AsynchronousSocketChannel clntChan, final Context context) {
+		writerMsg();
 		clntChan.write(writeBuf, clntChan, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
 			@Override
 			public void completed(Integer result, AsynchronousSocketChannel channel) {
-				handleRead(clntChan, context, "");
+				if (context.isEndFlag()) {
+					close();
+				} else {
+					handleRead(clntChan, context, "");
+				}
+				
 			}
 
 			@Override
 			public void failed(Throwable exc, AsynchronousSocketChannel channel) {
-				try {
-					clntChan.close();
-				} catch (IOException e) {
-					logger.log(Level.WARNING, "Close Failed", e);
-				}
+				close();
 			}
 		});
-		
+
 	}
 
 }

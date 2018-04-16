@@ -71,7 +71,7 @@ public class G8RPollStep extends PollState {
 					context.setState(new G8RNameStep(clntChan, logger));
 
 				}
-				writerMsg();
+				//writerMsg();
 			} else if (strNameGuess.equals(g8rRequest.getFunction())) {
 				setMapInfo(strNameGuess);
 				// Guess command fits
@@ -83,10 +83,11 @@ public class G8RPollStep extends PollState {
 
 				g8rResponse = new G8RResponse(statusOk, functionNameForSendGuess, "Guess (0-9)?", beforeCookie);
 				context.setState(new G8RSendGuess(clntChan, logger));
-				writerMsg();
+				//writerMsg();
 			} else {
 				// command function is wrong
-				generateErrorMsg("Unexpected function");
+				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected function", beforeCookie);
+				//generateErrorMsg("Unexpected function");
 			}
 
 		} catch (ValidationException e) {
