@@ -9,13 +9,10 @@ package G8R.app;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -29,13 +26,12 @@ import N4M.app.N4MServer;
  * Server that send and get G8RMessage
  */
 public class G8RServer {
-	private static final int BUFSIZE = 0;
 	private static Logger logger = Logger.getLogger(G8RServer.class.getName());
 	private FileHandler fileTxt;
 	private SimpleFormatter formatterTxt;
 	private N4MServer n4mServer;
 	private Thread n4m;
-	
+
 	/**
 	 * constructor for server, use Executors newFixedThreadPool as thread pool
 	 * 
@@ -71,7 +67,7 @@ public class G8RServer {
 				public void completed(AsynchronousSocketChannel clntChan, Void attachment) {
 					listener.accept(null, this);
 					Context context = new Context();
-					context.setState(new G8RPollStep(clntChan,logger, n4mServer));
+					context.setState(new G8RPollStep(clntChan, logger, n4mServer));
 					context.getState().handleRead(clntChan, context, "");
 				}
 
@@ -109,25 +105,17 @@ public class G8RServer {
 	 * @throws IOException
 	 *             if I/O problem
 	 *//*
-	public void handleAccept(final AsynchronousSocketChannel clntChan) throws IOException {
-		ByteBuffer buf = ByteBuffer.allocateDirect(BUFSIZE);
-		clntChan.read(buf, buf, new CompletionHandler<Integer, ByteBuffer>() {
-			public void completed(Integer bytesRead, ByteBuffer buf) {
-				Context context = new Context();
-				context.setState(new G8RPollStep(clntChan,logger, n4mServer));
-				context.getState().handleRead(clntChan, context, "");
-			}
-
-			public void failed(Throwable ex, ByteBuffer v) {
-				try {
-					clntChan.close();
-				} catch (IOException e) {
-					logger.log(Level.WARNING, "Close Failed", e);
-				}
-			}
-		});
-	}*/
-
+		 * public void handleAccept(final AsynchronousSocketChannel clntChan) throws
+		 * IOException { ByteBuffer buf = ByteBuffer.allocateDirect(BUFSIZE);
+		 * clntChan.read(buf, buf, new CompletionHandler<Integer, ByteBuffer>() { public
+		 * void completed(Integer bytesRead, ByteBuffer buf) { Context context = new
+		 * Context(); context.setState(new G8RPollStep(clntChan,logger, n4mServer));
+		 * context.getState().handleRead(clntChan, context, ""); }
+		 * 
+		 * public void failed(Throwable ex, ByteBuffer v) { try { clntChan.close(); }
+		 * catch (IOException e) { logger.log(Level.WARNING, "Close Failed", e); } } });
+		 * }
+		 */
 
 	/**
 	 * test the string is numeric

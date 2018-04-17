@@ -7,18 +7,16 @@
 ************************************************/
 package G8R.app;
 
-import java.io.BufferedReader;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.nio.charset.Charset;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -54,9 +52,9 @@ public abstract class PollState {
 	protected static String strSecondName = "LName";
 	protected static String repeatStr = "Repeat";
 
-	private final String TIMELIMIT = "20000"; // Default limit (ms)
+/*	private final String TIMELIMIT = "20000"; // Default limit (ms)
 	private final String TIMELIMITPROP = "Timelimit"; // Property
-	private int timeLimit;
+	private int timeLimit;*/
 
 	protected static String functionNameForSendGuess = "SendGuess";
 	protected static String strNameGuess = "Guess";
@@ -100,7 +98,7 @@ public abstract class PollState {
 			 * MessageInput(clntSock.getInputStream());
 			 */
 			// Get the time limit from the System properties or take the default
-			timeLimit = Integer.parseInt(System.getProperty(TIMELIMITPROP, TIMELIMIT));
+			//timeLimit = Integer.parseInt(System.getProperty(TIMELIMITPROP, TIMELIMIT));
 
 		} catch (NullPointerException e) {
 			// socket close
@@ -112,6 +110,7 @@ public abstract class PollState {
 
 	/**
 	 * decode message from the client, assign it for g8rRequest
+	 * @param receivedStr 
 	 * 
 	 * @throws NullPointerException
 	 * @return true if the type of message is G8RRequest. otherwise false.

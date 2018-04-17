@@ -7,7 +7,6 @@
 ************************************************/
 package G8R.app;
 
-import java.net.Socket;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.logging.Logger;
 
@@ -23,6 +22,7 @@ public class G8RSendGuess extends PollState {
 	private String strScore = "Score";
 
 	/**
+	 * @param clntChan 
 	 * @param clientSocket
 	 * @param logger
 	 */

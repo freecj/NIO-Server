@@ -44,8 +44,8 @@ public class G8RClient {
 	private String MessageDelimiter = "\r\n";
 	private String okStatsus = "OK";
 	private AsynchronousSocketChannel clntChan;
-	ByteBuffer writeBuf;
-	ByteBuffer readBuf;
+	private ByteBuffer writeBuf;
+	private ByteBuffer readBuf;
 	private static final String ENC = "ASCII";
 	/* BufferDelimiter for getting from next entry */
 	private static String BufferDelimiter = "\r\n\r\n";
@@ -229,24 +229,6 @@ public class G8RClient {
 			e.printStackTrace();
 		}
 	}
-
-	/**
-	 * Gets a new next CookieList by deserializing from the given input according to the specified serialization.
-	 * @param delimiter 
-	 * @return String token
-	 * @exception ValidationException if validation problem such as illegal name and/or value, etc.
-	 * @exception java.io.IOException if I/O problem (EOFException for EoS)
-	 * @exception java.lang.NullPointerException if input stream is null
-	 */
-	/*
-	 * public String getNextEntry(String delimiter) throws IOException,
-	 * NullPointerException, ValidationException { int i = 0; // the read length of
-	 * every time String ret = ""; int index = 0; // represent the number of the
-	 * string ret while ((i = clntChan.read(readBuf)) != -1) { ret += (char) i;
-	 * index++; if (index >= delimiter.length()) { delete the delimiter if
-	 * (isValidDlimiter(ret.substring(ret.length() - delimiter.length()),
-	 * delimiter)) { return ret; } } } return ret; }
-	 */
 
 	/**
 	 * check string is the format or not
@@ -444,28 +426,7 @@ public class G8RClient {
 
 			client = new G8RClient(server, servPort, cookieFileName);
 			Thread.currentThread().join();
-			/*
-			 * System.out.print("Function>");
-			 * 
-			 * BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-			 * int index = 0; while (true) { String userInput = ""; String foreStr = " "; if
-			 * ((userInput = stdIn.readLine()) != null) { String test = foreStr + userInput;
-			 * 
-			 * if (index == firstTime) { // input function if (!client.isValidParam(test)) {
-			 * // input error System.err.
-			 * println("Bad user input: Function not a proper token (alphanumeric)");
-			 * System.err.flush(); System.out.print("Function>"); System.out.flush(); //
-			 * input again continue; } // client send new function
-			 * client.sendRequest(userInput); } else { // input params if
-			 * (!client.isValidParam(test)) {
-			 * System.err.println("Bad user input: Params not a proper token (alphanumeric)"
-			 * ); System.err.flush(); System.out.print(client.g8rResponse.getMessage());
-			 * System.out.flush(); // input again continue; }
-			 * 
-			 * String[] param = userInput.split(" "); // client send request with new param
-			 * client.sendRequest(param); } // client read response message client.read();
-			 * index++; } }
-			 */
+			
 		} catch (Exception e) {
 			System.err.println(e.toString() + "main has exception");
 
