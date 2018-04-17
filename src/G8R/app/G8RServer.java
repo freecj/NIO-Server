@@ -9,11 +9,9 @@ package G8R.app;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.AsynchronousChannelGroup;
 import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.concurrent.Executors;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,13 +38,10 @@ public class G8RServer {
 	 *            thread pool number
 	 */
 	public G8RServer(int port, int threadNum) {
-		AsynchronousChannelGroup group = null;
+		
 		// ChannelGroup用来管理共享资源
-		try {
-			group = AsynchronousChannelGroup.withFixedThreadPool(threadNum, Executors.defaultThreadFactory());
-			final AsynchronousServerSocketChannel listener = AsynchronousServerSocketChannel.open(group);
-
-			listener.bind(new InetSocketAddress(port));
+		try (AsynchronousServerSocketChannel listenChannel = AsynchronousServerSocketChannel.open()) {
+			listenChannel.bind(new InetSocketAddress(port));
 
 			logger.setLevel(Level.INFO);
 			fileTxt = new FileHandler("connections.log");
@@ -61,11 +56,11 @@ public class G8RServer {
 			n4m.start();
 
 			// Create accept handler
-			listener.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
+			listenChannel.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
 
 				@Override
 				public void completed(AsynchronousSocketChannel clntChan, Void attachment) {
-					listener.accept(null, this);
+					listenChannel.accept(null, this);
 					Context context = new Context();
 					context.setState(new G8RPollStep(clntChan, logger, n4mServer));
 					context.getState().handleRead(clntChan, context, "");
@@ -78,21 +73,13 @@ public class G8RServer {
 			});
 			Thread.currentThread().join();
 		} catch (InterruptedException e) {
-			try {
-				group.shutdownNow();
-			} catch (IOException e1) {
-				System.out.println("Terminating the group...");
-				e1.printStackTrace();
-			}
 
 			logger.log(Level.WARNING, "Server Interrupted", e);
 		} catch (IOException e1) {
-			try {
-				group.shutdownNow();
-			} catch (IOException e) {
-				System.out.println("Terminating the group...");
-				e1.printStackTrace();
-			}
+
+			System.out.println("Terminating the group...");
+			e1.printStackTrace();
+
 		}
 
 	}
