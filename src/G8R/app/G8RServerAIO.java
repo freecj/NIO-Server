@@ -23,8 +23,8 @@ import N4M.app.N4MServer;
 /**
  * Server that send and get G8RMessage
  */
-public class G8RServer {
-	private static Logger logger = Logger.getLogger(G8RServer.class.getName());
+public class G8RServerAIO {
+	private static Logger logger = Logger.getLogger(G8RServerAIO.class.getName());
 	private FileHandler fileTxt;
 	private SimpleFormatter formatterTxt;
 	private N4MServer n4mServer;
@@ -37,9 +37,8 @@ public class G8RServer {
 	 * @param threadNum
 	 *            thread pool number
 	 */
-	public G8RServer(int port, int threadNum) {
-		
-		// ChannelGroup用来管理共享资源
+	public G8RServerAIO(int port, int threadNum) {
+
 		try (AsynchronousServerSocketChannel listenChannel = AsynchronousServerSocketChannel.open()) {
 			listenChannel.bind(new InetSocketAddress(port));
 
@@ -130,7 +129,7 @@ public class G8RServer {
 			// args is numeric
 			int servPort = Integer.parseInt(args[0]);// Server port
 			int threadNum = Integer.parseInt(args[1]);// the number of thread in the thread pool
-			new G8RServer(servPort, threadNum);// initial the server
+			new G8RServerAIO(servPort, threadNum);// initial the server
 			// Block until current thread dies
 
 		} else {
