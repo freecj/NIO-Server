@@ -1,12 +1,11 @@
 /************************************************
 *
 * Author: <Jian Cao>
-* Assignment: <Programe 3 >
+* Assignment: <Programe 7 >
 * Class: <CSI 4321>
 *
 ************************************************/
 package G8R.app;
-
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -52,10 +51,6 @@ public abstract class PollState {
 	protected static String strSecondName = "LName";
 	protected static String repeatStr = "Repeat";
 
-/*	private final String TIMELIMIT = "20000"; // Default limit (ms)
-	private final String TIMELIMITPROP = "Timelimit"; // Property
-	private int timeLimit;*/
-
 	protected static String functionNameForSendGuess = "SendGuess";
 	protected static String strNameGuess = "Guess";
 	protected ByteBuffer writeBuf;
@@ -90,27 +85,12 @@ public abstract class PollState {
 		this.logger = logger;
 		this.clntChan = clntChan;
 		readBuf = ByteBuffer.allocateDirect(BUFSIZE);
-
-		try {
-
-			/*
-			 * socketOut = new MessageOutput(clntSock.getOutputStream()); socketIn = new
-			 * MessageInput(clntSock.getInputStream());
-			 */
-			// Get the time limit from the System properties or take the default
-			//timeLimit = Integer.parseInt(System.getProperty(TIMELIMITPROP, TIMELIMIT));
-
-		} catch (NullPointerException e) {
-			// socket close
-			close();
-
-		}
-
 	}
 
 	/**
 	 * decode message from the client, assign it for g8rRequest
-	 * @param receivedStr 
+	 * 
+	 * @param receivedStr
 	 * 
 	 * @throws NullPointerException
 	 * @return true if the type of message is G8RRequest. otherwise false.
@@ -127,7 +107,6 @@ public abstract class PollState {
 				// the type of message from the socket is G8RRequest
 				// System.out.println("request");
 				g8rRequest = (G8RRequest) temp;
-				System.out.println(g8rRequest);
 				return true;
 			} else {
 				// otherwise throw exception
@@ -135,14 +114,17 @@ public abstract class PollState {
 			}
 		} catch (ValidationException e1) {
 			CookieList beforeCookie = new CookieList();
-			System.out.println(e1.getToken());
 			try {
 				// if there is ValidationException, server need send NULL comand to end the
 				// connection.
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Bad version: " + e1.getToken(),
 						beforeCookie);
 				context.setEndFlag();
-				handleWrite(clntChan, context);
+				try {
+					handleWrite(clntChan, context);
+				} catch (IOException e) {
+					logger.log(Level.WARNING, "Handle Read Failed", e);
+				}
 				// writerMsg();
 				// close();
 				return false;
@@ -173,16 +155,12 @@ public abstract class PollState {
 		context.setEndFlag();
 		try {
 			logTerminateMsg();
-
 			if (clntChan != null && clntChan.isOpen()) {
-				clntChan.shutdownInput();
-				clntChan.shutdownOutput();
 				clntChan.close();
-
 			}
 
 		} catch (IOException e) {
-			logger.log(Level.WARNING, "Close Failed", e);
+			logger.log(Level.WARNING, "Server AIO channle close Failed", e);
 			System.err.println("server AIO channle closed failed:");
 		}
 	}
@@ -290,12 +268,15 @@ public abstract class PollState {
 	 * @param clntChan
 	 *            channel of new client
 	 * @param context
+	 *            the state object
 	 * @param ret
+	 *            string has already received
 	 * 
 	 * @throws IOException
 	 *             if I/O problem
 	 */
-	public void handleRead(final AsynchronousSocketChannel clntChan, final Context context, final String ret) {
+	public void handleRead(final AsynchronousSocketChannel clntChan, final Context context, final String ret)
+			throws IOException {
 		readBuf.clear(); // Prepare buffer for input, ignoring existing state
 
 		clntChan.read(readBuf, clntChan, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
@@ -304,25 +285,41 @@ public abstract class PollState {
 			public void completed(Integer bytesRead, AsynchronousSocketChannel channel) {
 				// message is read from server
 				if (bytesRead == -1) {
-
+					// nothing to read
 					close();
-
 				} else if (bytesRead > 0) {
 					String now = ret + (char) readBuf.get(0);
-					// System.out.println( byteBuffer2String(readBuf, Charset.forName(ENC)));
 
 					if (now.length() >= BufferDelimiter.length()) {
-						/* delete the delimiter */
+						/* find the delimiter */
 
 						if (isValidDlimiter(now.substring(now.length() - BufferDelimiter.length()), BufferDelimiter)) {
+							// the ending delimiter is the right one, finish reading
+							// turn the byte into message
 							read(now);
+							// deal with the message and go to another state
 							generateMsg();
-							handleWrite(clntChan, context);
+							// write response
+							try {
+								handleWrite(clntChan, context);
+							} catch (IOException e) {
+								logger.log(Level.WARNING, "Handle Write Failed", e);
+							}
 						} else {
-							handleRead(clntChan, context, now);
+							// continue reading
+							try {
+								handleRead(clntChan, context, now);
+							} catch (IOException e) {
+								logger.log(Level.WARNING, "Handle Read Failed", e);
+							}
 						}
 					} else {
-						handleRead(clntChan, context, now);
+						// continue reading, length is too small
+						try {
+							handleRead(clntChan, context, now);
+						} catch (IOException e) {
+							logger.log(Level.WARNING, "Handle Read Failed", e);
+						}
 					}
 				}
 			}
@@ -342,23 +339,26 @@ public abstract class PollState {
 	 * @param clntChan
 	 *            channel of new client
 	 * @param context
-	 * @param ret
-	 * @param buf
-	 *            byte buffer used in write
+	 *            the state object
 	 * @throws IOException
 	 *             if I/O problem
 	 */
-	public void handleWrite(final AsynchronousSocketChannel clntChan, final Context context) {
+	public void handleWrite(final AsynchronousSocketChannel clntChan, final Context context) throws IOException {
 		writerMsg();
 		clntChan.write(writeBuf, clntChan, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
 			@Override
 			public void completed(Integer result, AsynchronousSocketChannel channel) {
 				if (context.isEndFlag()) {
+					// ending of state
 					close();
 				} else {
-					context.getState().handleRead(clntChan, context, "");
+					// go the new state and continue reading request
+					try {
+						context.getState().handleRead(clntChan, context, "");
+					} catch (IOException e) {
+						logger.log(Level.WARNING, "Handle Read Failed", e);
+					}
 				}
-
 			}
 
 			@Override

@@ -24,17 +24,20 @@ import N4M.app.N4MServer;
 public class G8RPollStep extends PollState {
 	private N4MServer n4mServer;
 	private static final int SHORTMASK = 0xffff;
+
 	/**
 	 * @param clntChan
 	 * @param logger
-	 * @param n4mServer 
+	 * @param n4mServer
 	 */
-	public G8RPollStep(AsynchronousSocketChannel clntChan,Logger logger, N4MServer n4mServer) {
+	public G8RPollStep(AsynchronousSocketChannel clntChan, Logger logger, N4MServer n4mServer) {
 		super(clntChan, logger);
 		this.n4mServer = n4mServer;
 	}
+
 	/**
 	 * set map infor
+	 * 
 	 * @param name
 	 */
 	public void setMapInfo(String name) {
@@ -43,11 +46,12 @@ public class G8RPollStep extends PollState {
 				n4mServer.mapName.get(name).getAndIncrement();
 			}
 		} else {
-			n4mServer.mapName.put(name,new AtomicInteger(1));
-			
+			n4mServer.mapName.put(name, new AtomicInteger(1));
+
 		}
-		n4mServer.mapTime.put(name,new Date());
+		n4mServer.mapTime.put(name, new Date());
 	}
+
 	@Override
 	public void generateMsg() {
 		// get the cookielist from the request message
@@ -70,8 +74,8 @@ public class G8RPollStep extends PollState {
 					context.setState(new G8RNameStep(clntChan, logger));
 
 				}
-				
-				//writerMsg();
+
+				// writerMsg();
 			} else if (strNameGuess.equals(g8rRequest.getFunction())) {
 				setMapInfo(strNameGuess);
 				// Guess command fits
@@ -83,13 +87,13 @@ public class G8RPollStep extends PollState {
 
 				g8rResponse = new G8RResponse(statusOk, functionNameForSendGuess, "Guess (0-9)?", beforeCookie);
 				context.setState(new G8RSendGuess(clntChan, logger));
-				//writerMsg();
+				// writerMsg();
 			} else {
 				// command function is wrong
-				
+
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected function", beforeCookie);
 				context.setEndFlag();
-				//generateErrorMsg("Unexpected function");
+				// generateErrorMsg("Unexpected function");
 			}
 
 		} catch (ValidationException e) {

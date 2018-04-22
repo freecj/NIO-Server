@@ -7,7 +7,6 @@
 ************************************************/
 package G8R.app;
 
-
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.logging.Logger;
 
@@ -22,7 +21,7 @@ import G8R.serialization.ValidationException;
 public class G8RFoodStep extends PollState {
 
 	/**
-	 * @param clntChan 
+	 * @param clntChan
 	 * @param clientSocket
 	 * @param logger
 	 */
@@ -67,8 +66,8 @@ public class G8RFoodStep extends PollState {
 				beforeCookie.add(repeatStr, String.valueOf(repeateValue));
 				g8rResponse = new G8RResponse(statusOk, functionNameForNull, msString, beforeCookie);
 				context.setEndFlag();
-				//writerMsg();
-				//close();
+				// writerMsg();
+				// close();
 
 			} else if (functionNameForFood.equals(g8rRequest.getFunction()) && g8rRequest.getParams().length != 1) {
 				// resend the foodstep command to let the use input the right request
@@ -80,13 +79,13 @@ public class G8RFoodStep extends PollState {
 				String mString = "Poorly formed food mood. " + firstName + "'s Food mood>";
 				g8rResponse = new G8RResponse(statusError, functionNameForFood, mString, beforeCookie);
 
-				//writerMsg();
+				// writerMsg();
 			} else {
 				// error function name
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected message", beforeCookie);
 				context.setEndFlag();
-				//context.setState(new G8REndStep(clntChan, logger, "Unexpected message"));
-				//generateErrorMsg("Unexpected message");
+				// context.setState(new G8REndStep(clntChan, logger, "Unexpected message"));
+				// generateErrorMsg("Unexpected message");
 
 			}
 

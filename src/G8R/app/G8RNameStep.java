@@ -21,7 +21,8 @@ public class G8RNameStep extends PollState {
 
 	/**
 	 * Constructor use PollState constructor
-	 * @param clntChan 
+	 * 
+	 * @param clntChan
 	 * @param logger
 	 */
 	public G8RNameStep(AsynchronousSocketChannel clntChan, Logger logger) {
@@ -35,9 +36,9 @@ public class G8RNameStep extends PollState {
 	@Override
 	public void generateMsg() {
 		// get the cookielist from the request message
-		
+
 		CookieList beforeCookie = g8rRequest.getCookieList();
-		
+
 		try {
 			if (functionNameForName.equals(g8rRequest.getFunction()) && g8rRequest.getParams().length == 2) {
 				System.out.println("a");
@@ -51,19 +52,19 @@ public class G8RNameStep extends PollState {
 				g8rResponse = new G8RResponse(statusOk, functionNameForFood, msString, beforeCookie);
 
 				context.setState(new G8RFoodStep(clntChan, logger));
-				//writerMsg();
+				// writerMsg();
 			} else if (functionNameForName.equals(g8rRequest.getFunction()) && g8rRequest.getParams().length != 2) {
 				// the param number does not match
 				String mString = "Poorly formed name. Name (First Last)>";
 
 				g8rResponse = new G8RResponse(statusError, functionNameForName, mString, beforeCookie);
 
-				//writerMsg();
+				// writerMsg();
 			} else {
 				// error function name
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected message", beforeCookie);
 				context.setEndFlag();
-				//generateErrorMsg("Unexpected message");
+				// generateErrorMsg("Unexpected message");
 			}
 		} catch (ValidationException e) {
 			close();

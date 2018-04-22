@@ -92,7 +92,6 @@ public class G8RClient {
 			// Create channel and set to nonblocking
 			clntChan = AsynchronousSocketChannel.open();
 
-		
 			// try to connect to the server side
 			clntChan.connect(new InetSocketAddress(ip, port), clntChan,
 					new CompletionHandler<Void, AsynchronousSocketChannel>() {
@@ -179,12 +178,12 @@ public class G8RClient {
 		try {
 			if ((userInput = stdIn.readLine()) != null) {
 				String test = foreStr + userInput;
-				
+
 				if (index == firstTime) {
 					// input function
 					if (!isValidParam(test)) {
 						// input error
-						System.err.println("Bad user input: Function not a proper token (alphanumeric)");
+						System.err.println("Bad user input: Function not a proper token (alphanumeric)>");
 						System.err.flush();
 						System.out.print("Function>");
 						System.out.flush();
@@ -197,7 +196,7 @@ public class G8RClient {
 				} else {
 					// input params
 					if (!isValidParam(test)) {
-						System.err.println("Bad user input: Params not a proper token (alphanumeric)");
+						System.err.println("Bad user input: Params not a proper token (alphanumeric)>");
 						System.err.flush();
 						System.out.print(g8rResponse.getMessage());
 						System.out.flush();
@@ -210,11 +209,11 @@ public class G8RClient {
 					// client send request with new param
 					sendRequest(param);
 				}
-				
+
 				sockChannel.write(writeBuf, sockChannel, new CompletionHandler<Integer, AsynchronousSocketChannel>() {
 					@Override
 					public void completed(Integer result, AsynchronousSocketChannel channel) {
-						
+
 						startRead(sockChannel, index, "");
 					}
 
@@ -232,8 +231,10 @@ public class G8RClient {
 
 	/**
 	 * check string is the format or not
-	 * @param test String to be tested
-	 * @param delimiter 
+	 * 
+	 * @param test
+	 *            String to be tested
+	 * @param delimiter
 	 * @return true if match, otherwise false.
 	 */
 	public boolean isValidDlimiter(String test, String delimiter) {
@@ -244,7 +245,8 @@ public class G8RClient {
 
 	/**
 	 * read response message from server
-	 * @param receivedStr 
+	 * 
+	 * @param receivedStr
 	 */
 	public void read(String receivedStr) {
 		try {
@@ -322,8 +324,6 @@ public class G8RClient {
 		try {
 			writeCookieToFile();
 			if (clntChan != null && clntChan.isOpen()) {
-				clntChan.shutdownInput();
-				clntChan.shutdownOutput();
 				clntChan.close();
 			}
 		} catch (IOException e) {
@@ -356,7 +356,7 @@ public class G8RClient {
 			OutputStream out = new ByteArrayOutputStream();
 			socketOut = new MessageOutput(out);
 			g8rRequest.encode(socketOut);
-			
+
 			writeBuf = ByteBuffer.wrap(((ByteArrayOutputStream) out).toByteArray());
 
 		} catch (ValidationException e) {
@@ -389,7 +389,7 @@ public class G8RClient {
 			socketOut = new MessageOutput(out);
 			g8rRequest.encode(socketOut);
 			writeBuf = ByteBuffer.wrap(((ByteArrayOutputStream) out).toByteArray());
-			
+
 		} catch (ValidationException e) {
 			System.err.println("socket send Request failed: ValidationException");
 		} catch (IOException e) {
@@ -426,7 +426,7 @@ public class G8RClient {
 
 			client = new G8RClient(server, servPort, cookieFileName);
 			Thread.currentThread().join();
-			
+
 		} catch (Exception e) {
 			System.err.println(e.toString() + "main has exception");
 

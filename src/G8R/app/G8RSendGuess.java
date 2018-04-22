@@ -22,7 +22,7 @@ public class G8RSendGuess extends PollState {
 	private String strScore = "Score";
 
 	/**
-	 * @param clntChan 
+	 * @param clntChan
 	 * @param clientSocket
 	 * @param logger
 	 */
@@ -42,9 +42,10 @@ public class G8RSendGuess extends PollState {
 				String guessNum = g8rRequest.getParams()[0];
 				if (!isNumeric(guessNum)) {
 					// guessNum is not numeric
-					g8rResponse = new G8RResponse(statusError, functionNameForNull, "malparam guessNum is not numeric", beforeCookie);
+					g8rResponse = new G8RResponse(statusError, functionNameForNull, "malparam guessNum is not numeric",
+							beforeCookie);
 					context.setEndFlag();
-					//generateErrorMsg("malparam guessNum is not numeric");
+					// generateErrorMsg("malparam guessNum is not numeric");
 					return;
 				}
 
@@ -61,32 +62,33 @@ public class G8RSendGuess extends PollState {
 							g8rResponse = new G8RResponse(statusOk, functionNameForNull,
 									"Correct! Score=" + String.valueOf(score), beforeCookie);
 							context.setEndFlag();
-							//writerMsg();
-							//close();
+							// writerMsg();
+							// close();
 						} else if (numRequest < setValue) {
 							// small case
 							beforeCookie.add(strScore, String.valueOf(score));
 							g8rResponse = new G8RResponse(statusError, functionNameForSendGuess,
 									"Guess too low. Guess (0-9)?>", beforeCookie);
-							//writerMsg();
+							// writerMsg();
 						} else if (numRequest > setValue) {
 							// large case
 							beforeCookie.add(strScore, String.valueOf(score));
 							g8rResponse = new G8RResponse(statusError, functionNameForSendGuess,
 									"Guess too high. Guess (0-9)?>", beforeCookie);
-							//writerMsg();
+							// writerMsg();
 						}
 					} else {
 						// cookie value of Num is not right
-						g8rResponse = new G8RResponse(statusError, functionNameForNull, "malfunction, Num is beyond the range 0-9", beforeCookie);
+						g8rResponse = new G8RResponse(statusError, functionNameForNull,
+								"malfunction, Num is beyond the range 0-9", beforeCookie);
 						context.setEndFlag();
-						//generateErrorMsg("malfunction, Num is beyond the range 0-9");
+						// generateErrorMsg("malfunction, Num is beyond the range 0-9");
 					}
 				} else {
 					// no cookiename=Num
 					g8rResponse = new G8RResponse(statusError, functionNameForNull, "malfunction", beforeCookie);
 					context.setEndFlag();
-					//generateErrorMsg("malfunction");
+					// generateErrorMsg("malfunction");
 
 				}
 
@@ -95,12 +97,12 @@ public class G8RSendGuess extends PollState {
 				String mString = "Poorly formed Guess. Guess (0-9)?>";
 				g8rResponse = new G8RResponse(statusError, functionNameForSendGuess, mString, beforeCookie);
 
-				//writerMsg();
+				// writerMsg();
 			} else {
 				// error function name
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Unexpected message", beforeCookie);
 				context.setEndFlag();
-				//generateErrorMsg("Unexpected message");
+				// generateErrorMsg("Unexpected message");
 
 			}
 

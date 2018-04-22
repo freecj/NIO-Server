@@ -303,7 +303,7 @@ class N4MTest {
 			N4MMessage test1 = N4MMessage.decode(msgResponse);
 			N4MMessage test2 = N4MMessage.decode(msgResponse);
 			N4MMessage test3 = N4MMessage.decode(msgResponse);
-			N4MResponse t2 = new N4MResponse(((N4MResponse)test1).getErrorCode(), ((N4MResponse)test1).getMsgId(), ((N4MResponse)test1).getTimestamp(),
+			 new N4MResponse(((N4MResponse)test1).getErrorCode(), ((N4MResponse)test1).getMsgId(), ((N4MResponse)test1).getTimestamp(),
 					((N4MResponse)test1).getApplications()
 					);
 			if (test1 instanceof N4MResponse) {

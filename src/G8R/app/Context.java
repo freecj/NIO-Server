@@ -32,7 +32,8 @@ public class Context {
 
 	/**
 	 * the command which accept and respond the client
-	 * @param receivedStr 
+	 * 
+	 * @param receivedStr
 	 */
 	public void pull(String receivedStr) {
 		if (curstate.read(receivedStr)) {

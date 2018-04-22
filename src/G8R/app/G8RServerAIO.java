@@ -1,7 +1,7 @@
 /************************************************
 *
 * Author: <Jian Cao>
-* Assignment: <Programe 6 >
+* Assignment: <Programe 7 >
 * Class: <CSI 4321>
 *
 ************************************************/
@@ -40,6 +40,7 @@ public class G8RServerAIO {
 	public G8RServerAIO(int port, int threadNum) {
 
 		try (AsynchronousServerSocketChannel listenChannel = AsynchronousServerSocketChannel.open()) {
+			// Bind local port
 			listenChannel.bind(new InetSocketAddress(port));
 
 			logger.setLevel(Level.INFO);
@@ -62,7 +63,11 @@ public class G8RServerAIO {
 					listenChannel.accept(null, this);
 					Context context = new Context();
 					context.setState(new G8RPollStep(clntChan, logger, n4mServer));
-					context.getState().handleRead(clntChan, context, "");
+					try {
+						context.getState().handleRead(clntChan, context, "");
+					} catch (IOException e) {
+						logger.log(Level.WARNING, "Handle Read Failed", e);
+					}
 				}
 
 				@Override
@@ -70,38 +75,19 @@ public class G8RServerAIO {
 					logger.log(Level.WARNING, "Close Failed", e);
 				}
 			});
+			// Block until current thread dies
 			Thread.currentThread().join();
 		} catch (InterruptedException e) {
-
+			System.err.println("Server Interrupted...");
 			logger.log(Level.WARNING, "Server Interrupted", e);
-		} catch (IOException e1) {
-
-			System.out.println("Terminating the group...");
-			e1.printStackTrace();
-
+		} catch (IOException e) {
+			logger.log(Level.WARNING, "Server has IOException,Terminated", e);
+			System.err.println("Server has IOException,Terminated");
+		} catch (Exception e) {
+			logger.log(Level.WARNING, "Server has Exception,Terminated", e);
+			System.err.println("Server has Exception,Terminated");
 		}
-
 	}
-
-	/**
-	 * Called after each accept completion
-	 * 
-	 * @param clntChan
-	 *            channel of new client
-	 * @throws IOException
-	 *             if I/O problem
-	 *//*
-		 * public void handleAccept(final AsynchronousSocketChannel clntChan) throws
-		 * IOException { ByteBuffer buf = ByteBuffer.allocateDirect(BUFSIZE);
-		 * clntChan.read(buf, buf, new CompletionHandler<Integer, ByteBuffer>() { public
-		 * void completed(Integer bytesRead, ByteBuffer buf) { Context context = new
-		 * Context(); context.setState(new G8RPollStep(clntChan,logger, n4mServer));
-		 * context.getState().handleRead(clntChan, context, ""); }
-		 * 
-		 * public void failed(Throwable ex, ByteBuffer v) { try { clntChan.close(); }
-		 * catch (IOException e) { logger.log(Level.WARNING, "Close Failed", e); } } });
-		 * }
-		 */
 
 	/**
 	 * test the string is numeric
