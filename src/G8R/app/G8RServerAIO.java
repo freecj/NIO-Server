@@ -106,7 +106,7 @@ public class G8RServerAIO {
 	public static void main(String[] args) {
 		if ((args.length != 1)) {
 			// Test for correct # of args
-			System.err.println("Echo server requires 2 argument: <Port> ");
+			System.err.println("Echo server requires 1 argument: <Port> ");
 			throw new IllegalArgumentException("Parameter(s): <Port> ");
 		}
 		if (isNumeric(args[0])) {
@@ -118,7 +118,7 @@ public class G8RServerAIO {
 
 		} else {
 			// args is wrong
-			System.err.println("Echo server <Port> or <thread number> is not numeric.");
+			System.err.println("Echo server <Port>  is not numeric.");
 		}
 
 	}

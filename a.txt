@@ -1,6 +1,6 @@
 FName=Cao
 LName=Jina
 Num=3
-Repeat=16
+Repeat=18
 Score=3
 

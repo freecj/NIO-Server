@@ -44,7 +44,8 @@ public class G8RFoodStep extends PollState {
 
 					if (!isNumeric(beforeCookie.getValue(repeatStr))) {
 						// Repeat is not numeric
-						generateErrorMsg("malcookie Repeat is not numeric");
+						g8rResponse = new G8RResponse(statusError, functionNameForNull, "malcookie Repeat is not numeric", beforeCookie);
+						context.setEndFlag();
 						return;
 					}
 					repeateValue = Integer.parseInt(beforeCookie.getValue(repeatStr));

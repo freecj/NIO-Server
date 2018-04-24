@@ -107,6 +107,7 @@ public abstract class PollState {
 				// the type of message from the socket is G8RRequest
 				// System.out.println("request");
 				g8rRequest = (G8RRequest) temp;
+
 				return true;
 			} else {
 				// otherwise throw exception
@@ -120,10 +121,11 @@ public abstract class PollState {
 				g8rResponse = new G8RResponse(statusError, functionNameForNull, "Bad version: " + e1.getToken(),
 						beforeCookie);
 				context.setEndFlag();
+
 				try {
 					handleWrite(clntChan, context);
 				} catch (IOException e) {
-					logger.log(Level.WARNING, "Handle Read Failed", e);
+					logger.log(Level.WARNING, "Handle Write Failed", e);
 				}
 				// writerMsg();
 				// close();
@@ -154,11 +156,10 @@ public abstract class PollState {
 	public void close() {
 		context.setEndFlag();
 		try {
-			logTerminateMsg();
 			if (clntChan != null && clntChan.isOpen()) {
+				logTerminateMsg();
 				clntChan.close();
 			}
-
 		} catch (IOException e) {
 			logger.log(Level.WARNING, "Server AIO channle close Failed", e);
 			System.err.println("server AIO channle closed failed:");
@@ -195,6 +196,7 @@ public abstract class PollState {
 			OutputStream out = new ByteArrayOutputStream();
 			socketOut = new MessageOutput(out);
 			g8rResponse.encode(socketOut);
+
 			writeBuf = ByteBuffer.wrap(((ByteArrayOutputStream) out).toByteArray());
 			logMsg();
 		} catch (SocketTimeoutException e) {
@@ -205,6 +207,7 @@ public abstract class PollState {
 			System.err.println("G8RSever write IOException. " + e.getMessage());
 		} catch (Exception e) {
 			close();
+			e.printStackTrace();
 			System.err.println("G8RSever write Exception. " + e.getMessage());
 		}
 	}
@@ -215,9 +218,15 @@ public abstract class PollState {
 	 * @throws IOException
 	 */
 	public void logMsg() throws IOException {
-		logger.info("<" + clntChan.getRemoteAddress() + ">:" + "<" + ">-" + "<" + Thread.currentThread().getId()
-				+ "> [Received:<" + g8rRequest.toString() + ">|Sent: <" + g8rResponse.toString() + ">]"
-				+ System.getProperty("line.separator"));
+		if (g8rRequest != null) {
+			logger.info("<" + clntChan.getRemoteAddress() + ">:" + "<" + ">-" + "<" + Thread.currentThread().getId()
+					+ "> [Received:<" + g8rRequest.toString() + ">|Sent: <" + g8rResponse.toString() + ">]"
+					+ System.getProperty("line.separator"));
+		} else {
+			logger.info("<" + clntChan.getRemoteAddress() + ">:" + "<" + ">-" + "<" + Thread.currentThread().getId()
+					+ "> [Received:< wrong function" + ">|Sent: <" + g8rResponse.toString() + ">]"
+					+ System.getProperty("line.separator"));
+		}
 
 	}
 
@@ -296,15 +305,19 @@ public abstract class PollState {
 						if (isValidDlimiter(now.substring(now.length() - BufferDelimiter.length()), BufferDelimiter)) {
 							// the ending delimiter is the right one, finish reading
 							// turn the byte into message
-							read(now);
-							// deal with the message and go to another state
-							generateMsg();
-							// write response
-							try {
-								handleWrite(clntChan, context);
-							} catch (IOException e) {
-								logger.log(Level.WARNING, "Handle Write Failed", e);
+
+							boolean flag = read(now);
+							if (flag) {
+								// deal with the message and go to another state
+								generateMsg();
+								// write response
+								try {
+									handleWrite(clntChan, context);
+								} catch (IOException e) {
+									logger.log(Level.WARNING, "Handle Write Failed", e);
+								}
 							}
+
 						} else {
 							// continue reading
 							try {

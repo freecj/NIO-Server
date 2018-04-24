@@ -1,141 +1,18 @@
-Apr 23, 2018 6:24:30 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59484>:<>-<19> [Received:<g8rrequest: Poll Cookies=[]>|Sent: <response: OK NameStep Name (First Last)> Cookies=[]>]
+Apr 23, 2018 9:32:41 PM G8R.app.PollState logMsg
+INFO: </127.0.0.1:62526>:<>-<19> [Received:<g8rrequest: Poll Cookies=[FName=Cao,LName=Jina,Num=3,Repeat=16,Score=3]>|Sent: <response: OK FoodStep Cao's Food mood> Cookies=[FName=Cao,LName=Jina,Num=3,Repeat=16,Score=3]>]
 
-Apr 23, 2018 6:24:48 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59484>:<>-<20> [Received:<g8rrequest: NameStep  YurpCookies=[]>|Sent: <response: ERROR NameStep Poorly formed name. Name (First Last)> Cookies=[]>]
+Apr 23, 2018 9:32:43 PM G8R.app.PollState logMsg
+INFO: </127.0.0.1:62526>:<>-<20> [Received:<g8rrequest: FoodStep  JianCookies=[FName=Cao,LName=Jina,Num=3,Repeat=16,Score=3]>|Sent: <response: OK NULL 10%+17% off at McDonalds Cookies=[FName=Cao,LName=Jina,Num=3,Repeat=17,Score=3]>]
 
-Apr 23, 2018 6:25:00 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59484>:<>-<20> [Received:<g8rrequest: NameStep  Bob SmithCookies=[]>|Sent: <response: OK FoodStep Bob's Food mood> Cookies=[FName=Bob,LName=Smith]>]
+Apr 23, 2018 9:32:43 PM G8R.app.PollState logTerminateMsg
+INFO: </127.0.0.1:62526>:<>-<19> ***client terminated
 
-Apr 23, 2018 6:25:08 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59484>:<>-<20> [Received:<g8rrequest: FoodStep  ItalianCookies=[FName=Bob,LName=Smith]>|Sent: <response: OK NULL 25%+1% off at Pastastic Cookies=[FName=Bob,LName=Smith,Repeat=1]>]
+Apr 23, 2018 9:32:54 PM G8R.app.PollState logMsg
+INFO: </127.0.0.1:62527>:<>-<20> [Received:<g8rrequest: Poll Cookies=[FName=Cao,LName=Jina,Num=3,Repeat=17,Score=3]>|Sent: <response: OK FoodStep Cao's Food mood> Cookies=[FName=Cao,LName=Jina,Num=3,Repeat=17,Score=3]>]
 
-Apr 23, 2018 6:25:08 PM G8R.app.PollState logTerminateMsg
-INFO: </127.0.0.1:59484>:<>-<19> ***client terminated
+Apr 23, 2018 9:32:55 PM G8R.app.PollState logMsg
+INFO: </127.0.0.1:62527>:<>-<20> [Received:<g8rrequest: FoodStep  sadsdCookies=[FName=Cao,LName=Jina,Num=3,Repeat=17,Score=3]>|Sent: <response: OK NULL 10%+18% off at McDonalds Cookies=[FName=Cao,LName=Jina,Num=3,Repeat=18,Score=3]>]
 
-Apr 23, 2018 6:25:28 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59495>:<>-<20> [Received:<g8rrequest: Poll Cookies=[FName=Bob,LName=Smith,Repeat=1]>|Sent: <response: OK FoodStep Bob's Food mood> Cookies=[FName=Bob,LName=Smith,Repeat=1]>]
-
-Apr 23, 2018 6:25:37 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59495>:<>-<20> [Received:<g8rrequest: FoodStep  MexicanCookies=[FName=Bob,LName=Smith,Repeat=1]>|Sent: <response: OK NULL 20%+2% off at Tacopia Cookies=[FName=Bob,LName=Smith,Repeat=2]>]
-
-Apr 23, 2018 6:25:37 PM G8R.app.PollState logTerminateMsg
-INFO: </127.0.0.1:59495>:<>-<19> ***client terminated
-
-Apr 23, 2018 6:25:49 PM G8R.app.PollState logTerminateMsg
-INFO: </127.0.0.1:59497>:<>-<19> ***client terminated
-
-Apr 23, 2018 6:25:49 PM G8R.app.PollState close
-WARNING: Server AIO channle close Failed
-java.nio.channels.ClosedChannelException
-	at sun.nio.ch.AsynchronousSocketChannelImpl.getRemoteAddress(Unknown Source)
-	at G8R.app.PollState.logTerminateMsg(PollState.java:230)
-	at G8R.app.PollState.close(PollState.java:157)
-	at G8R.app.PollState$2.failed(PollState.java:366)
-	at G8R.app.PollState$2.failed(PollState.java:1)
-	at sun.nio.ch.Invoker.invokeUnchecked(Unknown Source)
-	at sun.nio.ch.Invoker.invokeDirect(Unknown Source)
-	at sun.nio.ch.Invoker.invoke(Unknown Source)
-	at sun.nio.ch.AsynchronousSocketChannelImpl.write(Unknown Source)
-	at sun.nio.ch.AsynchronousSocketChannelImpl.write(Unknown Source)
-	at java.nio.channels.AsynchronousSocketChannel.write(Unknown Source)
-	at G8R.app.PollState.handleWrite(PollState.java:348)
-	at G8R.app.PollState.read(PollState.java:124)
-	at G8R.app.PollState$1.completed(PollState.java:299)
-	at G8R.app.PollState$1.completed(PollState.java:1)
-	at sun.nio.ch.Invoker.invokeUnchecked(Unknown Source)
-	at sun.nio.ch.Invoker.invokeUnchecked(Unknown Source)
-	at sun.nio.ch.WindowsAsynchronousSocketChannelImpl$ReadTask.completed(Unknown Source)
-	at sun.nio.ch.Iocp$EventHandlerTask.run(Unknown Source)
-	at sun.nio.ch.AsynchronousChannelGroupImpl$1.run(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
-	at java.lang.Thread.run(Unknown Source)
-
-Apr 23, 2018 6:26:03 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59498>:<>-<20> [Received:<g8rrequest: Poll Cookies=[FName=Bob,LName=Smith,Repeat=1]>|Sent: <response: OK FoodStep Bob's Food mood> Cookies=[FName=Bob,LName=Smith,Repeat=1]>]
-
-Apr 23, 2018 6:26:08 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59498>:<>-<18> [Received:<g8rrequest: FoodStep  XCookies=[FName=Bob,LName=Smith,Repeat=1]>|Sent: <response: OK NULL 10%+2% off at McDonalds Cookies=[FName=Bob,LName=Smith,Repeat=2]>]
-
-Apr 23, 2018 6:26:08 PM G8R.app.PollState logTerminateMsg
-INFO: </127.0.0.1:59498>:<>-<20> ***client terminated
-
-Apr 23, 2018 6:26:23 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59500>:<>-<18> [Received:<g8rrequest: Poll Cookies=[]>|Sent: <response: OK NameStep Name (First Last)> Cookies=[]>]
-
-Apr 23, 2018 6:26:26 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59500>:<>-<18> [Received:<g8rrequest: FoodStep  ChickenCookies=[FName=Bob,LName=Smith]>|Sent: <response: ERROR NULL Unexpected message Cookies=[FName=Bob,LName=Smith]>]
-
-Apr 23, 2018 6:26:26 PM G8R.app.PollState logTerminateMsg
-INFO: </127.0.0.1:59500>:<>-<20> ***client terminated
-
-Apr 23, 2018 6:26:33 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59501>:<>-<20> [Received:<g8rrequest: Poll Cookies=[]>|Sent: <response: OK NameStep Name (First Last)> Cookies=[]>]
-
-Apr 23, 2018 6:26:33 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59501>:<>-<20> [Received:<g8rrequest: NameStep  Bob SmithCookies=[]>|Sent: <response: OK FoodStep Bob's Food mood> Cookies=[FName=Bob,LName=Smith]>]
-
-Apr 23, 2018 6:26:37 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59501>:<>-<20> [Received:<g8rrequest: FoodStep  ItalianCookies=[FName=Bob,LName=Smith]>|Sent: <response: OK NULL 25%+1% off at Pastastic Cookies=[FName=Bob,LName=Smith,Repeat=1]>]
-
-Apr 23, 2018 6:26:37 PM G8R.app.PollState logTerminateMsg
-INFO: </127.0.0.1:59501>:<>-<18> ***client terminated
-
-Apr 23, 2018 6:26:43 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59502>:<>-<20> [Received:<g8rrequest: Poll Cookies=[FName=Bob,LName=Smith,Repeat=Z]>|Sent: <response: OK FoodStep Bob's Food mood> Cookies=[FName=Bob,LName=Smith,Repeat=Z]>]
-
-Apr 23, 2018 6:26:43 PM G8R.app.PollState logMsg
-INFO: </127.0.0.1:59502>:<>-<20> [Received:<g8rrequest: FoodStep  MexicanCookies=[FName=Bob,LName=Smith,Repeat=Z]>|Sent: <response: ERROR NULL malcookie Repeat is not numeric Cookies=[FName=Bob,LName=Smith,Repeat=Z]>]
-
-Apr 23, 2018 6:26:43 PM G8R.app.PollState logTerminateMsg
-INFO: </127.0.0.1:59502>:<>-<20> ***client terminated
-
-Apr 23, 2018 6:26:43 PM G8R.app.PollState close
-WARNING: Server AIO channle close Failed
-java.nio.channels.ClosedChannelException
-	at sun.nio.ch.AsynchronousSocketChannelImpl.getRemoteAddress(Unknown Source)
-	at G8R.app.PollState.logTerminateMsg(PollState.java:230)
-	at G8R.app.PollState.close(PollState.java:157)
-	at G8R.app.PollState.writerMsg(PollState.java:204)
-	at G8R.app.PollState.handleWrite(PollState.java:347)
-	at G8R.app.PollState$1.completed(PollState.java:304)
-	at G8R.app.PollState$1.completed(PollState.java:1)
-	at sun.nio.ch.Invoker.invokeUnchecked(Unknown Source)
-	at sun.nio.ch.Invoker.invokeUnchecked(Unknown Source)
-	at sun.nio.ch.WindowsAsynchronousSocketChannelImpl$ReadTask.completed(Unknown Source)
-	at sun.nio.ch.Iocp$EventHandlerTask.run(Unknown Source)
-	at sun.nio.ch.AsynchronousChannelGroupImpl$1.run(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
-	at java.lang.Thread.run(Unknown Source)
-
-Apr 23, 2018 6:26:43 PM G8R.app.PollState close
-WARNING: Server AIO channle close Failed
-java.nio.channels.ClosedChannelException
-	at sun.nio.ch.AsynchronousSocketChannelImpl.getRemoteAddress(Unknown Source)
-	at G8R.app.PollState.logTerminateMsg(PollState.java:230)
-	at G8R.app.PollState.close(PollState.java:157)
-	at G8R.app.PollState$2.failed(PollState.java:366)
-	at G8R.app.PollState$2.failed(PollState.java:1)
-	at sun.nio.ch.Invoker.invokeUnchecked(Unknown Source)
-	at sun.nio.ch.Invoker.invokeDirect(Unknown Source)
-	at sun.nio.ch.Invoker.invoke(Unknown Source)
-	at sun.nio.ch.AsynchronousSocketChannelImpl.write(Unknown Source)
-	at sun.nio.ch.AsynchronousSocketChannelImpl.write(Unknown Source)
-	at java.nio.channels.AsynchronousSocketChannel.write(Unknown Source)
-	at G8R.app.PollState.handleWrite(PollState.java:348)
-	at G8R.app.PollState$1.completed(PollState.java:304)
-	at G8R.app.PollState$1.completed(PollState.java:1)
-	at sun.nio.ch.Invoker.invokeUnchecked(Unknown Source)
-	at sun.nio.ch.Invoker.invokeUnchecked(Unknown Source)
-	at sun.nio.ch.WindowsAsynchronousSocketChannelImpl$ReadTask.completed(Unknown Source)
-	at sun.nio.ch.Iocp$EventHandlerTask.run(Unknown Source)
-	at sun.nio.ch.AsynchronousChannelGroupImpl$1.run(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
-	at java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
-	at java.lang.Thread.run(Unknown Source)
-
-Apr 23, 2018 6:26:45 PM G8R.app.PollState logTerminateMsg
-INFO: </127.0.0.1:59503>:<>-<20> ***client terminated
+Apr 23, 2018 9:32:55 PM G8R.app.PollState logTerminateMsg
+INFO: </127.0.0.1:62527>:<>-<19> ***client terminated
 

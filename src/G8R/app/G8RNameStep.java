@@ -41,7 +41,7 @@ public class G8RNameStep extends PollState {
 
 		try {
 			if (functionNameForName.equals(g8rRequest.getFunction()) && g8rRequest.getParams().length == 2) {
-				System.out.println("a");
+
 				// NameStep command fits
 				String[] values = g8rRequest.getParams();
 				// add name cookies
