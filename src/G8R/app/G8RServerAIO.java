@@ -34,10 +34,8 @@ public class G8RServerAIO {
 	 * constructor for server, use Executors newFixedThreadPool as thread pool
 	 * 
 	 * @param port
-	 * @param threadNum
-	 *            thread pool number
 	 */
-	public G8RServerAIO(int port, int threadNum) {
+	public G8RServerAIO(int port) {
 
 		try (AsynchronousServerSocketChannel listenChannel = AsynchronousServerSocketChannel.open()) {
 			// Bind local port
@@ -106,16 +104,16 @@ public class G8RServerAIO {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		if ((args.length != 2)) {
+		if ((args.length != 1)) {
 			// Test for correct # of args
-			System.err.println("Echo server requires 2 argument: <Port> <thread number>");
-			throw new IllegalArgumentException("Parameter(s): <Port> <thread number>");
+			System.err.println("Echo server requires 2 argument: <Port> ");
+			throw new IllegalArgumentException("Parameter(s): <Port> ");
 		}
-		if (isNumeric(args[0]) && isNumeric(args[1])) {
+		if (isNumeric(args[0])) {
 			// args is numeric
 			int servPort = Integer.parseInt(args[0]);// Server port
-			int threadNum = Integer.parseInt(args[1]);// the number of thread in the thread pool
-			new G8RServerAIO(servPort, threadNum);// initial the server
+
+			new G8RServerAIO(servPort);// initial the server
 			// Block until current thread dies
 
 		} else {
