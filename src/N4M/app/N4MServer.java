@@ -35,7 +35,7 @@ import N4M.serialization.N4MResponse;
  */
 public class N4MServer implements Runnable {
 	private static final int READMAX = 500; // Maximum size of datagram
-	
+
 	private Logger logger = Logger.getLogger(N4MServer.class.getName());
 	private FileHandler fileTxt;
 	private SimpleFormatter formatterTxt;
@@ -95,18 +95,15 @@ public class N4MServer implements Runnable {
 		List<ApplicationEntry> applicationsReceived = new ArrayList<ApplicationEntry>();
 		AtomicInteger useCount = new AtomicInteger(0);
 		long time = 0;
-		if (mapName.containsKey(query.getBusinessName())) {
-			useCount = mapName.get(query.getBusinessName());
 
-		}
-		if (mapTime.containsKey(query.getBusinessName())) {
-			time = mapTime.get(query.getBusinessName()).getTime() / 1000L;
-
+		for (String name : mapName.keySet()) {
+			ApplicationEntry newEntry = new ApplicationEntry(name, mapName.get(name).get());
+			applicationsReceived.add(newEntry);
 		}
 
-		ApplicationEntry newEntry = new ApplicationEntry(query.getBusinessName(), useCount.get());
-		applicationsReceived.add(newEntry);
-
+		for (Date t : mapTime.values()) {
+			time = Math.max(time, t.getTime() / 1000L);
+		}
 		response = new N4MResponse(ErrorCodeType.NOERROR, query.getMsgId(), time, applicationsReceived);
 
 	}
@@ -126,7 +123,7 @@ public class N4MServer implements Runnable {
 	 */
 	public void readMsg() throws IOException {
 		DatagramPacket packet = new DatagramPacket(new byte[READMAX], READMAX);
-	
+
 		socketUdp.receive(packet); // Receive packet from client
 		byte[] in = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
 		try {
@@ -138,12 +135,12 @@ public class N4MServer implements Runnable {
 				sendMsgRight();
 
 			} else {
-				//msg is response
+				// msg is response
 				sendMsgisResponseWrong();
 			}
 			packet.setData(response.encode());
 			socketUdp.send(packet);
-		
+
 		} catch (NullPointerException e) {
 			System.err.println("read message from client has NullPointerException." + e.getMessage());
 		} catch (N4MException e) {
@@ -153,7 +150,7 @@ public class N4MServer implements Runnable {
 				sendMsgisQueryWrong(e.getErrorCodeType());
 				packet.setData(response.encode());
 				socketUdp.send(packet);
-				
+
 			} catch (N4MException e1) {
 				System.err.println("send message to client has N4MException:" + e.getErrorCodeType());
 			}
@@ -172,7 +169,6 @@ public class N4MServer implements Runnable {
 
 	}
 
-
 	@Override
 	public void run() {
 		while (true) {
@@ -182,7 +178,7 @@ public class N4MServer implements Runnable {
 				System.err.println("read message from client has IOException");
 				e.printStackTrace();
 				socketUdp.close();
-			} 
+			}
 		}
 
 	}
