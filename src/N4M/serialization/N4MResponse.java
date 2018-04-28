@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.StringBufferInputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -191,8 +192,11 @@ public class N4MResponse extends N4MMessage {
 		}
 
 		long time = timestamp * 1000L;
+		
 		Date strTime = new Date(time);
+		System.out.println(str.length());
 		str += " Data=" + strTime;
+		System.out.println(str.length());
 		return super.toString() + str;
 	}
 

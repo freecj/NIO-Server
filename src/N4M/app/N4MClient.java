@@ -16,6 +16,7 @@ import java.net.SocketException;
 import java.util.Arrays;
 import java.util.Random;
 
+import N4M.serialization.ErrorCodeType;
 import N4M.serialization.N4MException;
 import N4M.serialization.N4MMessage;
 import N4M.serialization.N4MQuery;
@@ -32,7 +33,7 @@ public class N4MClient {
 	private static final int TIMEOUT = 3000; // Resend timeout (milliseconds)
 	private int msgId;
 	private static final int MAXTRIES = 5; // Maximum retransmissions
-
+	public boolean msgError = false;
 	/**
 	 * client init function
 	 * 
@@ -77,7 +78,7 @@ public class N4MClient {
 			System.err.println("send message from server has N4MException:" + e.getErrorCodeType().toString());
 		}
 	}
-
+	
 	/**
 	 * read message from the server
 	 * 
@@ -90,12 +91,19 @@ public class N4MClient {
 		byte[] in = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
 		try {
 			N4MMessage receiveMsg = N4MMessage.decode(in);
+			
 			if (receiveMsg instanceof N4MResponse) {
+				
 				if (msgId != receiveMsg.getMsgId()) {
 					System.err.println("msgId does not equal.");
 				}
 				System.out.println(("Received msg :" + (N4MResponse) receiveMsg));
-
+				System.out.println("Received msg :");
+				if (receiveMsg.getErrorCode() != ErrorCodeType.NOERROR) {
+					msgError= true;
+				} else {
+					msgError= false;
+				}
 			} else {
 				System.err.println("The packet is not repsonse message.");
 			}
@@ -133,7 +141,12 @@ public class N4MClient {
 				client.sendMsg();
 				try {
 					client.readMsg();
-					receivedResponse = true;
+					if (!client.msgError) {
+						receivedResponse = true;
+					} else {
+						tries += 1;
+					}
+					
 				} catch (InterruptedIOException e) { // We did not get anything
 					tries += 1;
 					System.out.println("Timed out, " + (MAXTRIES - tries) + " more tries...");
