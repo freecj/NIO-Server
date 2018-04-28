@@ -96,9 +96,10 @@ public class N4MClient {
 				
 				if (msgId != receiveMsg.getMsgId()) {
 					System.err.println("msgId does not equal.");
+					
 				}
 				System.out.println(("Received msg :" + (N4MResponse) receiveMsg));
-				System.out.println("Received msg :");
+				
 				if (receiveMsg.getErrorCode() != ErrorCodeType.NOERROR) {
 					msgError= true;
 				} else {
