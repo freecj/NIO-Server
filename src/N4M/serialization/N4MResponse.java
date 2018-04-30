@@ -185,23 +185,20 @@ public class N4MResponse extends N4MMessage {
 
 	@Override
 	public String toString() {
-		String str = "";
+		// String str = "";
 		StringBuffer longStr = new StringBuffer("");
 		for (ApplicationEntry e : applications) {
-		//	str += e + ",";
-			longStr.append(str);
-			//System.out.println(e.getApplicationName().length());
-		}
+			// str += e + ",";
+			longStr.append(e + ",");
 
+		}
 		long time = timestamp * 1000L;
-		
+
 		Date strTime = new Date(time);
-		//System.out.println(str.length());
-		//str += " Data=" + strTime;
+		// System.out.println(str.length());
+		// str += " Data=" + strTime;
 		longStr.append(" Data=" + strTime);
-		/*System.out.println(str.length());
-		System.out.println(strTime);
-		System.out.println(applications.size());*/
+
 		return super.toString() + longStr.toString();
 	}
 

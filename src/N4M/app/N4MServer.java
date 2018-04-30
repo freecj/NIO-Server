@@ -73,6 +73,7 @@ public class N4MServer implements Runnable {
 
 	/**
 	 * msg is response and wrong
+	 * 
 	 * @throws N4MException
 	 */
 	public void sendMsgisResponseWrong() throws N4MException {
@@ -81,7 +82,9 @@ public class N4MServer implements Runnable {
 
 	/**
 	 * msg is query and is wrong
-	 * @param t errorcode
+	 * 
+	 * @param t
+	 *            errorcode
 	 * @throws N4MException
 	 */
 	public void sendMsgisQueryWrong(ErrorCodeType t) throws N4MException {
@@ -93,7 +96,7 @@ public class N4MServer implements Runnable {
 	 */
 	public void sendMsgRight() throws N4MException {
 		List<ApplicationEntry> applicationsReceived = new ArrayList<ApplicationEntry>();
-		AtomicInteger useCount = new AtomicInteger(0);
+
 		long time = 0;
 
 		for (String name : mapName.keySet()) {

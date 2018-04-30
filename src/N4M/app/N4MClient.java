@@ -34,6 +34,7 @@ public class N4MClient {
 	private int msgId;
 	private static final int MAXTRIES = 5; // Maximum retransmissions
 	public boolean msgError = false;
+
 	/**
 	 * client init function
 	 * 
@@ -78,7 +79,7 @@ public class N4MClient {
 			System.err.println("send message from server has N4MException:" + e.getErrorCodeType().toString());
 		}
 	}
-	
+
 	/**
 	 * read message from the server
 	 * 
@@ -91,19 +92,18 @@ public class N4MClient {
 		byte[] in = Arrays.copyOfRange(packet.getData(), 0, packet.getLength());
 		try {
 			N4MMessage receiveMsg = N4MMessage.decode(in);
-			
+
 			if (receiveMsg instanceof N4MResponse) {
-				
+
 				if (msgId != receiveMsg.getMsgId()) {
 					System.err.println("msgId does not equal.");
-					
 				}
 				System.out.println(("Received msg :" + (N4MResponse) receiveMsg));
-				
+
 				if (receiveMsg.getErrorCode() != ErrorCodeType.NOERROR) {
-					msgError= true;
+					msgError = true;
 				} else {
-					msgError= false;
+					msgError = false;
 				}
 			} else {
 				System.err.println("The packet is not repsonse message.");
@@ -146,8 +146,9 @@ public class N4MClient {
 						receivedResponse = true;
 					} else {
 						tries += 1;
+						System.out.println("Timed out, " + (MAXTRIES - tries) + " more tries...");
 					}
-					
+
 				} catch (InterruptedIOException e) { // We did not get anything
 					tries += 1;
 					System.out.println("Timed out, " + (MAXTRIES - tries) + " more tries...");
@@ -161,12 +162,12 @@ public class N4MClient {
 			client.close();
 		} catch (SocketException e) {
 			e.printStackTrace();
-			System.err.println("Therr is a SocketException in the main function.");
+			System.err.println("There is a SocketException in the main function.");
 		} catch (IOException e) {
-			System.err.println("Therr is a IOException in the main function or socket timeout happens.");
+			System.err.println("There is a IOException in the main function or socket timeout happens.");
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.err.println("Therr is a Exception in the main function.");
+			System.err.println("There is a Exception in the main function.");
 		}
 
 	}

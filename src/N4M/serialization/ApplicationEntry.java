@@ -50,7 +50,7 @@ public class ApplicationEntry {
 	@Override
 	public String toString() {
 		String str = null;
-		str = String.format("applicationName=%s, Use Conut=%d", applicationName, accessCt);
+		str = String.format("applicationName=%s, Used Count=%d", applicationName, accessCt);
 		return str;
 
 	}
