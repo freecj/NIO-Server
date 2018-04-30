@@ -1,6 +1,6 @@
 FName=Jian
 LName=CAO
-Num=8
+Num=0
 Repeat=2
-Score=5
+Score=6
 

@@ -189,7 +189,7 @@ public class N4MResponse extends N4MMessage {
 		StringBuffer longStr = new StringBuffer("");
 		for (ApplicationEntry e : applications) {
 			// str += e + ",";
-			longStr.append(e + ",");
+			longStr.append(e + System.lineSeparator());
 
 		}
 		long time = timestamp * 1000L;
@@ -199,7 +199,7 @@ public class N4MResponse extends N4MMessage {
 		// str += " Data=" + strTime;
 		longStr.append(" Data=" + strTime);
 
-		return super.toString() + longStr.toString();
+		return super.toString() +  System.lineSeparator()+longStr.toString();
 	}
 
 	/**
